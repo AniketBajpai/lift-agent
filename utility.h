@@ -5,6 +5,9 @@ using namespace std;
 const int N = 5;
 const int K = 2;
 
+const double WAIT_COST = 2.0;
+const double ELECTRICITY_COST = 1.0;
+
 enum Action {
     AU,
     AD,
