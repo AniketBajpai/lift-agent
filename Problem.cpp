@@ -265,5 +265,19 @@ int main() {
     r = 0.5;
     precompute();
 
+    cout << n_exp[3][1][0][0] << endl;
+    cout << n_exp[3][1][0][1] << endl;
+    cout << n_exp[3][1][0][2] << endl;
+    cout << n_exp[3][1][2][2] << endl;
+    cout << n_exp[3][5][2][2] << endl;
+
+    cout << n_exp_up[3][2][2] << endl;
+    cout << n_exp_down[3][2][2] << endl;
+
+    cout << n_exp_up[1][1][0] << endl;
+    cout << n_exp_up[1][2][0] << endl;
+    cout << n_exp_up[1][3][0] << endl;
+    cout << n_exp_up[1][4][0] << endl;
+
 
 }

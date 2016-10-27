@@ -19,7 +19,7 @@ void UCTNode::updateValue(double value) {
 }
 
 double UCTNode::getTreeValue() {
-	return (value + C * sqrt(log(num_simulations)/parent->num_simulations);
+	return (value + C_policy * sqrt(log(num_simulations)/parent->num_simulations);
 }
 
 std::pair<Action, UCTNode *> UCTNode::chooseNext() {
