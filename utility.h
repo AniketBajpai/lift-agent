@@ -1,4 +1,4 @@
-#include <bitset>
+#include <climits>
 
 using namespace std;
 
@@ -8,13 +8,17 @@ const int K = 2;
 const double WAIT_COST = 2.0;
 const double ELECTRICITY_COST = 1.0;
 
-enum Action {
+const double C = 1.5;
+
+enum ElevatorAction {
     AU,
     AD,
     AOU,
     AOD,
     AS
 };
+
+typedef pair<ElevatorAction, ElevatorAction> Action;
 
 enum ElevatorState {
     FULL,

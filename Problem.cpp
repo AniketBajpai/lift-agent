@@ -251,7 +251,7 @@ double evaluateTerminalState(State state) {
 }
 
 // returns cost of performing given action sequences on elevators in current state
-double getSequenceCost(State state, vector<Action> action_seq1, vector<Action> action_seq2) {
+double getSequenceCost(State state, vector<ElevatorAction> action_seq1, vector<ElevatorAction> action_seq2) {
     assert(action_seq1.size() == action_seq2.size());   // action sequences of same size
     int num_actions = action_seq1.size();
     for (int i = 0; i < num_actions; ++i) {

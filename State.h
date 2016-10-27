@@ -23,6 +23,11 @@ public:
     Elevator elevator2;
     int time_up[N];
     int time_down[N];
+
+	vector<Action> getActions();
+	State* getResState(Action action);
+	pair<Action, State*> getRandomNextState();
+	double runSimulation(int epochs);
 };
 
 #endif //LIFT_AGENT_STATE_H
