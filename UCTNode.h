@@ -5,16 +5,19 @@
 
 class UCTNode {
 public:
-	UCTNode* parent;
-	vector<pair<Action, UCTNode*> > children;
-	State* state;
+	UCTNode *parent;
+	vector<pair<Action, UCTNode *> > children;
+	State *state;
 	int num_simulations;
 	double value;
 
-	UCTNode(State* state);
+	UCTNode(State *state);
+
 	double getTreeValue();
+
 	void updateValue(double value);
-	pair<Action, UCTNode*> chooseNext();
+
+	pair<Action, UCTNode *> chooseNext();
 };
 
 #endif //LIFT_AGENT_UCTNODE_H
