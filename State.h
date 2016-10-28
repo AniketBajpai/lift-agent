@@ -2,6 +2,17 @@
 #define LIFT_AGENT_STATE_H
 
 #include "utility.h"
+#include <queue>
+
+extern double p, q, r;
+const int T = 2 * N - 1;
+extern double P[T + 2][N + 1][N + 1][T + 2][T + 2];
+extern double P_arrived[N + 1][T + 2][T + 2];
+extern double n_exp[N + 1][N + 1][T + 2][T + 2];
+extern double n_exp_up[N + 1][T + 2][T + 2];
+extern double n_exp_down[N + 1][T + 2][T + 2];
+
+extern int d[N + 1][N + 1][2][2];
 
 class Elevator {
 public:
@@ -10,8 +21,44 @@ public:
 	ElevatorState elevatorState;
 	bool is_up;
 
-	bool isTerminalPosition() {
-		return ((is_up and position == N) or (not (is_up) and position == 1));
+	string toString() {
+		string elevatorStr = "";
+		elevatorStr += (to_string(position) + "\n");
+		string alightStr = "ALight: ";
+		for (int i = 1; i <= N; ++i) {
+			alightStr += (to_string(alight[i]) + " ");
+		}
+		elevatorStr += (alightStr + "\n");
+		string stateStr;
+		switch(elevatorState) {
+			case EMPTY: stateStr = "EMPTY"; break;
+			case JUST_FULL: stateStr = "JUST_FULL"; break;
+			case FULL: stateStr = "FULL"; break;
+		}
+		elevatorStr += (stateStr + "\n");
+		elevatorStr += to_string(is_up);
+		return elevatorStr;
+	}
+
+	bool isEmpty() {
+		if(is_up) {
+//			if(position == N)
+//				return true;
+			int num_alight = 0;
+			for (int i = position+1; i <= N; ++i) {
+				num_alight += alight[i];
+			}
+			return (num_alight == 0);
+		}
+		else {
+//			if(position == 0)
+//				return true;
+			int num_alight = 0;
+			for (int i = 1; i < position; ++i) {
+				num_alight += alight[i];
+			}
+			return (num_alight == 0);
+		}
 	}
 
 	int getNumberOfPeople() {
@@ -22,7 +69,7 @@ public:
 		return num;
 	}
 
-	vector<ElevatorAction> getActions() {
+	vector<ElevatorAction>& getActions(queue<ElevatorAction>& q) {
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
 			if (is_up) {
@@ -34,27 +81,105 @@ public:
 				actions.push_back(AOD);
 			}
 		}
-		else {
+		else if(this->elevatorState == EMPTY) {
 			if (not (is_up and position == N)) {
 				actions.push_back(AD);
 				actions.push_back(AOD);
+				actions.push_back(AU_INV);
+				actions.push_back(AU_GR);
 			}
 			if (not (not (is_up) and position == 1)) {
 				actions.push_back(AU);
 				actions.push_back(AOU);
+				actions.push_back(AD_INV);
 			}
-			// actions.push_back(AS);
+			actions.push_back(AS);
+		}
+		else if(this->elevatorState == JUST_FULL) {
+			assert(not q.empty());
+			actions.push_back(q.front());
+			q.pop();
 		}
 		return actions;
+	}
+	
+	void updateState(ElevatorAction elevatorAction, queue<ElevatorAction>& q) {
+		if(elevatorState == EMPTY) {
+			updateEmptyState(elevatorAction, q);
+		}
+		else if(elevatorState == JUST_FULL) {
+			updateJustFullState(elevatorAction, q);
+		}
+	}
+	
+	void updateEmptyState(ElevatorAction elevatorAction, queue<ElevatorAction>& q) {
+		assert(elevatorState == EMPTY);
+		if(elevatorAction == AU or elevatorAction == AOU) {
+			this->elevatorState = FULL;
+			is_up = true;
+		}
+		else if(elevatorAction == AU or elevatorAction == AOU) {
+			this->elevatorState = FULL;
+			is_up = false;
+		}
+		else if(elevatorAction == AU_INV) {
+			assert(q.empty());
+			q.push(AD);
+			q.push(AOU);
+			q.push(AU);
+			this->elevatorState = JUST_FULL;
+			is_up = true;
+		}
+		else if(elevatorAction == AD_INV) {
+			assert(q.empty());
+			q.push(AU);
+			q.push(AOD);
+			q.push(AD);
+			this->elevatorState = JUST_FULL;
+			is_up = false;
+		}
+		else if(elevatorAction == AU_GR) {
+			assert(q.empty());
+			for (int i = 1; i < position; ++i) {
+				q.push(AD);
+			}
+			q.push(AOU);
+			for (int i = 1; i < position; ++i) {
+				q.push(AU);
+			}
+			this->elevatorState = JUST_FULL;
+			is_up = true;
+		}
+	}
+
+	void updateJustFullState(ElevatorAction elevatorAction, queue<ElevatorAction>& q) {
+		assert(elevatorState == JUST_FULL);
+		if(q.empty()) {
+			this->elevatorState = FULL;
+		}
+	}
+
+	void updateFullState() {
+		assert(elevatorState == FULL);
+		if(isEmpty()) {
+			this->elevatorState = EMPTY;
+		}
+		if(is_up and position==N) {
+			is_up = false;
+		}
+		if(not(is_up) and position==1) {
+			is_up = true;
+		}
+
 	}
 
 	double applyAction(ElevatorAction action, int num_out[N + 1][N + 1]) {
 		double cost = 0;
-		if ((action == AU) and (position <= N)) {
+		if ((action == AU) and (position < N)) {
 			position++;
 			cost = 1;
 		}
-		else if ((action == AD) and (position >= 1)) {
+		else if ((action == AD) and (position > 1)) {
 			position--;
 			cost = 1;
 		}
@@ -83,11 +208,13 @@ public:
 	int time_up[N];
 	int time_down[N];
 
-	vector<Action> getActions();
-
 	State *getResState(Action action);
 
-	pair<Action, State *> getRandomNextState();
+	int* getDistanceArr(Elevator& elevator, ElevatorAction elevatorAction);
+
+	double insideCost(Elevator &elevator, ElevatorAction elevatorAction);
+
+	double getMinCost(int distance1[2*N+2], int distance2[2*N+2]);
 
 	Action getPolicyAction();
 
@@ -98,6 +225,8 @@ public:
 	double getWaitCost(Action action, int num_out[N + 1][N + 1]);
 
 	double runSimulation(int epochs);
+
+	string toString();
 };
 
 #endif //LIFT_AGENT_STATE_H

@@ -2,28 +2,19 @@
 #include <cmath>
 #include <cstring>
 #include <vector>
-#include <cassert>
 #include "State.h"
 
 double p, q, r;
-const int T = 2 * N - 1;
-double P[
-		T + 2][
-		N + 1][
-		N + 1][
-		T + 2][T + 2];  // prob. of n people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
+
+double P[T + 2][N + 1][N + 1][T + 2][T + 2];  // prob. of n people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
 double P_arrived[N + 1][T + 2][T + 2];
-double n_exp[
-		N + 1][
-		N + 1][
-		T + 2][
-		T + 2];   // expected no. of people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
+double n_exp[N + 1][N + 1][T + 2][T + 2];   // expected no. of people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
 double n_exp_up[N + 1][T + 2][T + 2];     // expected no. of people going up from f
 double n_exp_down[N + 1][T + 2][T + 2];   // expected no. of people going down from f
 
 int d[N + 1][N + 1][2][2];  // distance between elevator and person given direction of elevator and person
 
-void precompute_P_arrival() {
+void precompute_P_arrival(double p, double q, double r) {
 	memset(P_arrived, 0, sizeof(P_arrived));
 
 	for (int floor = 1; floor <= N; ++floor) {
@@ -48,7 +39,7 @@ void precompute_P_arrival() {
 	}
 }
 
-void precompute_P() {
+void precompute_P(double p, double q, double r) {
 	memset(P, 0, sizeof(P));
 	for (int t1 = 0; t1 <= T; ++t1) {
 		for (int t2 = 0; t2 <= T; ++t2) {
@@ -135,7 +126,7 @@ void precompute_P() {
 	}
 }
 
-void precompute_n_exp() {
+void precompute_n_exp(double p, double q, double r) {
 	memset(n_exp, 0, sizeof(n_exp));
 
 	for (int t1 = 0; t1 <= T; ++t1) {
@@ -222,10 +213,10 @@ void precompute_distance() {
 	}
 }
 
-void precompute() {
-	precompute_P_arrival();
-	precompute_P();
-	precompute_n_exp();
+void precompute(double p, double q, double r) {
+	precompute_P_arrival(p, q, r);
+	precompute_P(p, q, r);
+	precompute_n_exp(p, q, r);
 	precompute_n_exp_up_down();
 	precompute_distance();
 }
@@ -273,6 +264,9 @@ int main() {
 	p = 0.8;
 	q = 0.5;
 	r = 0.5;
-	precompute();
+	precompute(p, q, r);
+
+	cout << n_exp_up[3][1][0] << endl;
+	cout << n_exp_down[3][1][0] << endl;
 
 }

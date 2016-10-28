@@ -1,4 +1,5 @@
 #include <climits>
+#include <cassert>
 
 using namespace std;
 
@@ -15,7 +16,10 @@ enum ElevatorAction {
 	AD,
 	AOU,
 	AOD,
-	AS
+	AS,
+	AU_INV,
+	AD_INV,
+	AU_GR
 };
 
 typedef pair<ElevatorAction, ElevatorAction> Action;

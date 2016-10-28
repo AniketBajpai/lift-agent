@@ -1,11 +1,10 @@
 #include <vector>
 #include <cmath>
-#include <cassert>
 #include "UCTNode.h"
 
 UCTNode::UCTNode(State *state) {
 	this->num_simulations = 0;
-	vector children();  // empty vector
+	vector<UCTNode> children;  // empty vector
 }
 
 void UCTNode::updateValue(double value) {
@@ -19,7 +18,7 @@ void UCTNode::updateValue(double value) {
 }
 
 double UCTNode::getTreeValue() {
-	return (value + C_policy * sqrt(log(num_simulations) / parent->num_simulations);
+	return (value + C_policy * sqrt(log(num_simulations) / parent->num_simulations));
 }
 
 std::pair<Action, UCTNode *> UCTNode::chooseNext() {
