@@ -5,6 +5,7 @@
 #include <cassert>
 #include "State.h"
 
+double p, q, r;
 const int T = 2 * N - 1;
 double P[
 		T + 2][
@@ -259,14 +260,14 @@ double evaluateTerminalState(State state) {
 	return (rem_cost + wait_cost);
 }
 
-// returns cost of performing given action sequences on elevators in current state
-double getSequenceCost(State state, vector<ElevatorAction> action_seq1, vector<ElevatorAction> action_seq2) {
-	assert(action_seq1.size() == action_seq2.size());   // action sequences of same size
-	int num_actions = action_seq1.size();
-	for (int i = 0; i < num_actions; ++i) {
-
-	}
-}
+//// returns cost of performing given action sequences on elevators in current state
+//double getSequenceCost(State state, vector<ElevatorAction> action_seq1, vector<ElevatorAction> action_seq2) {
+//	assert(action_seq1.size() == action_seq2.size());   // action sequences of same size
+//	int num_actions = action_seq1.size();
+//	for (int i = 0; i < num_actions; ++i) {
+//
+//	}
+//}
 
 int main() {
 	p = 0.8;

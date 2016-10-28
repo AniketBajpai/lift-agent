@@ -3,14 +3,15 @@
 #include <cstring>
 #include <random>
 #include "State.h"
-#include "utility.h"
+
+extern double p, q, r;
 
 vector<Action> State::getActions() {
 	vector<ElevatorAction> actions1 = elevator1.getActions();
 	vector<ElevatorAction> actions2 = elevator2.getActions();
 	vector<Action> actions;
-	for (const auto &&action1: actions1) {
-		for (const auto &&action2: actions2) {
+	for (auto &&action1: actions1) {
+		for (auto &&action2: actions2) {
 			actions.push_back(make_pair(action1, action2));
 		}
 	}
