@@ -30,10 +30,16 @@ public:
 		}
 		elevatorStr += (alightStr + "\n");
 		string stateStr;
-		switch(elevatorState) {
-			case EMPTY: stateStr = "EMPTY"; break;
-			case JUST_FULL: stateStr = "JUST_FULL"; break;
-			case FULL: stateStr = "FULL"; break;
+		switch (elevatorState) {
+			case EMPTY:
+				stateStr = "EMPTY";
+				break;
+			case JUST_FULL:
+				stateStr = "JUST_FULL";
+				break;
+			case FULL:
+				stateStr = "FULL";
+				break;
 		}
 		elevatorStr += (stateStr + "\n");
 		elevatorStr += to_string(is_up);
@@ -41,11 +47,11 @@ public:
 	}
 
 	bool isEmpty() {
-		if(is_up) {
+		if (is_up) {
 //			if(position == N)
 //				return true;
 			int num_alight = 0;
-			for (int i = position+1; i <= N; ++i) {
+			for (int i = position + 1; i <= N; ++i) {
 				num_alight += alight[i];
 			}
 			return (num_alight == 0);
@@ -69,7 +75,7 @@ public:
 		return num;
 	}
 
-	vector<ElevatorAction>& getActions(queue<ElevatorAction>& q) {
+	vector<ElevatorAction> &getActions(queue <ElevatorAction> &q) {
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
 			if (is_up) {
@@ -81,7 +87,7 @@ public:
 				actions.push_back(AOD);
 			}
 		}
-		else if(this->elevatorState == EMPTY) {
+		else if (this->elevatorState == EMPTY) {
 			if (not (is_up and position == N)) {
 				actions.push_back(AD);
 				actions.push_back(AOD);
@@ -95,34 +101,34 @@ public:
 			}
 			actions.push_back(AS);
 		}
-		else if(this->elevatorState == JUST_FULL) {
+		else if (this->elevatorState == JUST_FULL) {
 			assert(not q.empty());
 			actions.push_back(q.front());
 			q.pop();
 		}
 		return actions;
 	}
-	
-	void updateState(ElevatorAction elevatorAction, queue<ElevatorAction>& q) {
-		if(elevatorState == EMPTY) {
+
+	void updateState(ElevatorAction elevatorAction, queue <ElevatorAction> &q) {
+		if (elevatorState == EMPTY) {
 			updateEmptyState(elevatorAction, q);
 		}
-		else if(elevatorState == JUST_FULL) {
+		else if (elevatorState == JUST_FULL) {
 			updateJustFullState(elevatorAction, q);
 		}
 	}
-	
-	void updateEmptyState(ElevatorAction elevatorAction, queue<ElevatorAction>& q) {
+
+	void updateEmptyState(ElevatorAction elevatorAction, queue <ElevatorAction> &q) {
 		assert(elevatorState == EMPTY);
-		if(elevatorAction == AU or elevatorAction == AOU) {
+		if (elevatorAction == AU or elevatorAction == AOU) {
 			this->elevatorState = FULL;
 			is_up = true;
 		}
-		else if(elevatorAction == AU or elevatorAction == AOU) {
+		else if (elevatorAction == AU or elevatorAction == AOU) {
 			this->elevatorState = FULL;
 			is_up = false;
 		}
-		else if(elevatorAction == AU_INV) {
+		else if (elevatorAction == AU_INV) {
 			assert(q.empty());
 			q.push(AD);
 			q.push(AOU);
@@ -130,7 +136,7 @@ public:
 			this->elevatorState = JUST_FULL;
 			is_up = true;
 		}
-		else if(elevatorAction == AD_INV) {
+		else if (elevatorAction == AD_INV) {
 			assert(q.empty());
 			q.push(AU);
 			q.push(AOD);
@@ -138,7 +144,7 @@ public:
 			this->elevatorState = JUST_FULL;
 			is_up = false;
 		}
-		else if(elevatorAction == AU_GR) {
+		else if (elevatorAction == AU_GR) {
 			assert(q.empty());
 			for (int i = 1; i < position; ++i) {
 				q.push(AD);
@@ -152,22 +158,22 @@ public:
 		}
 	}
 
-	void updateJustFullState(ElevatorAction elevatorAction, queue<ElevatorAction>& q) {
+	void updateJustFullState(ElevatorAction elevatorAction, queue <ElevatorAction> &q) {
 		assert(elevatorState == JUST_FULL);
-		if(q.empty()) {
+		if (q.empty()) {
 			this->elevatorState = FULL;
 		}
 	}
 
 	void updateFullState() {
 		assert(elevatorState == FULL);
-		if(isEmpty()) {
+		if (isEmpty()) {
 			this->elevatorState = EMPTY;
 		}
-		if(is_up and position==N) {
+		if (is_up and position == N) {
 			is_up = false;
 		}
-		if(not(is_up) and position==1) {
+		if (not (is_up) and position == 1) {
 			is_up = true;
 		}
 
@@ -210,11 +216,11 @@ public:
 
 	State *getResState(Action action);
 
-	int* getDistanceArr(Elevator& elevator, ElevatorAction elevatorAction);
+	int *getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction);
 
 	double insideCost(Elevator &elevator, ElevatorAction elevatorAction);
 
-	double getMinCost(int distance1[2*N+2], int distance2[2*N+2]);
+	double getMinCost(int distance1[2 * N + 2], int distance2[2 * N + 2]);
 
 	Action getPolicyAction();
 

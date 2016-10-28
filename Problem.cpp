@@ -6,9 +6,17 @@
 
 double p, q, r;
 
-double P[T + 2][N + 1][N + 1][T + 2][T + 2];  // prob. of n people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
+double P[
+		T + 2][
+		N + 1][
+		N + 1][
+		T + 2][T + 2];  // prob. of n people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
 double P_arrived[N + 1][T + 2][T + 2];
-double n_exp[N + 1][N + 1][T + 2][T + 2];   // expected no. of people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
+double n_exp[
+		N + 1][
+		N + 1][
+		T + 2][
+		T + 2];   // expected no. of people going from f1 to f2 after t1 - up waiting time, t2 - down waiting time
 double n_exp_up[N + 1][T + 2][T + 2];     // expected no. of people going up from f
 double n_exp_down[N + 1][T + 2][T + 2];   // expected no. of people going down from f
 
