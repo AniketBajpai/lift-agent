@@ -90,7 +90,7 @@ void precompute_P(double p, double q, double r) {
 						}
 						else if (t1 != 0 and t2 == 0) {
 							if (floor_end > floor_start) {
-								alight_choice_factor = 1.0 / (double) (N - floor_end);
+								alight_choice_factor = 1.0 / (double) (N - floor_start);
 							}
 							else if (floor_end < floor_start) {
 								alight_choice_factor = 0.0;
@@ -273,8 +273,4 @@ int main() {
 	q = 0.5;
 	r = 0.5;
 	precompute(p, q, r);
-
-	cout << n_exp_up[3][1][0] << endl;
-	cout << n_exp_down[3][1][0] << endl;
-
 }
