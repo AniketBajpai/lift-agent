@@ -2,6 +2,8 @@
 #define LIFT_AGENT_STATE_H
 
 #include "utility.h"
+#include <cstdlib>
+#include <cstring>
 #include <queue>
 
 extern double p, q, r;
@@ -17,41 +19,24 @@ extern int d[N + 1][N + 1][2][2];
 class Elevator {
 public:
 	int position;
-	int alight[N];
+	int alight[N + 1];
 	ElevatorState elevatorState;
 	bool is_up;
 
-	string toString() {
-		string elevatorStr = "";
-		elevatorStr += (to_string(position) + "\n");
-		string alightStr = "ALight: ";
-		for (int i = 1; i <= N; ++i) {
-			alightStr += (to_string(alight[i]) + " ");
-		}
-		elevatorStr += (alightStr + "\n");
-		string stateStr;
-		switch (elevatorState) {
-			case EMPTY:
-				stateStr = "EMPTY";
-				break;
-			case JUST_FULL:
-				stateStr = "JUST_FULL";
-				break;
-			case FULL:
-				stateStr = "FULL";
-				break;
-		}
-		elevatorStr += (stateStr + "\n");
-		elevatorStr += to_string(is_up);
-		return elevatorStr;
+	Elevator() {
+		this->position = rand() % (N - 1) + 1;
+		memset(alight, 0, sizeof(alight));
+		elevatorState = EMPTY;
+		is_up = (bool) (rand() % 2);
 	}
 
+	// check if elevator is empty
 	bool isEmpty() {
 		if (is_up) {
 //			if(position == N)
 //				return true;
 			int num_alight = 0;
-			for (int i = position + 1; i <= N; ++i) {
+			for (int i = 1; i <= N; ++i) {  // TODO: Check if only position to N is required
 				num_alight += alight[i];
 			}
 			return (num_alight == 0);
@@ -60,13 +45,14 @@ public:
 //			if(position == 0)
 //				return true;
 			int num_alight = 0;
-			for (int i = 1; i < position; ++i) {
+			for (int i = 1; i <= N; ++i) {
 				num_alight += alight[i];
 			}
 			return (num_alight == 0);
 		}
 	}
 
+	// return number of people in elevator
 	int getNumberOfPeople() {
 		int num = 0;
 		for (int alightFloor: alight) {
@@ -75,7 +61,7 @@ public:
 		return num;
 	}
 
-	vector<ElevatorAction> &getActions(queue <ElevatorAction> &q) {
+	vector<ElevatorAction> getActions(queue <ElevatorAction> &q) {
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
 			if (is_up) {
@@ -88,18 +74,22 @@ public:
 			}
 		}
 		else if (this->elevatorState == EMPTY) {
-			if (not (is_up and position == N)) {
+			if (position > 1) {
 				actions.push_back(AD);
 				actions.push_back(AOD);
-				actions.push_back(AU_INV);
-				actions.push_back(AU_GR);
 			}
-			if (not (not (is_up) and position == 1)) {
+			if (position < N) {
 				actions.push_back(AU);
 				actions.push_back(AOU);
+			}
+			if(position > 1 and position < N) {
+				actions.push_back(AU_INV);
 				actions.push_back(AD_INV);
 			}
-			actions.push_back(AS);
+			if(position == 3) {     // TODO: explore conditions in greater detail
+				actions.push_back(AU_GR);
+			}
+//			actions.push_back(AS);  // TODO: add support for AS
 		}
 		else if (this->elevatorState == JUST_FULL) {
 			assert(not q.empty());
@@ -124,7 +114,7 @@ public:
 			this->elevatorState = FULL;
 			is_up = true;
 		}
-		else if (elevatorAction == AU or elevatorAction == AOU) {
+		else if (elevatorAction == AD or elevatorAction == AOD) {
 			this->elevatorState = FULL;
 			is_up = false;
 		}
@@ -180,6 +170,7 @@ public:
 	}
 
 	double applyAction(ElevatorAction action, int num_out[N + 1][N + 1]) {
+		assert((action == AU_INV) and (action == AU_GR) and (action == AD_INV));
 		double cost = 0;
 		if ((action == AU) and (position < N)) {
 			position++;
@@ -203,7 +194,33 @@ public:
 				num_out[position][i] = 0;
 			}
 		}
+
 		return cost;
+	}
+
+	string toString() {
+		string elevatorStr = "";
+		elevatorStr += (to_string(position) + "\n");
+		string alightStr = "Alight: ";
+		for (int i = 1; i <= N; ++i) {
+			alightStr += (to_string(alight[i]) + " ");
+		}
+		elevatorStr += (alightStr + "\n");
+		string stateStr;
+		switch (elevatorState) {
+			case EMPTY:
+				stateStr = "EMPTY";
+				break;
+			case JUST_FULL:
+				stateStr = "JUST_FULL";
+				break;
+			case FULL:
+				stateStr = "FULL";
+				break;
+		}
+		elevatorStr += (stateStr + "\n");
+		elevatorStr += to_string(is_up);
+		return elevatorStr;
 	}
 };
 
@@ -211,8 +228,10 @@ class State {
 public:
 	Elevator elevator1;
 	Elevator elevator2;
-	int time_up[N];
-	int time_down[N];
+	int time_up[N + 1];
+	int time_down[N + 1];
+
+	State();
 
 	State *getResState(Action action);
 

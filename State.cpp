@@ -1,12 +1,17 @@
-#include <vector>
-#include <cstdlib>
-#include <cstring>
 #include <random>
-
 #include "State.h"
 
 queue<ElevatorAction> actionq1;
 queue<ElevatorAction> actionq2;
+
+
+State::State() {
+	Elevator elevator1();
+	Elevator elevator2();
+	memset(time_up, 0, sizeof(time_up));
+	memset(time_down, 0, sizeof(time_down));
+}
+
 
 State *State::getResState(Action action) {
 	State *resState = new State(*this);
@@ -161,6 +166,20 @@ Action State::getPolicyAction() {
 				greedyAction = make_pair(action1, action2);
 				minCost = cost;
 			}
+		}
+	}
+
+	// Modify action for empty elevator
+	if(elevator1.elevatorState == EMPTY) {
+		if(greedyAction.first == AU_INV or greedyAction.first == AU_GR or greedyAction.first == AD_INV) {
+			greedyAction.first = actionq1.front();
+			actionq1.pop();
+		}
+	}
+	if(elevator2.elevatorState == EMPTY) {
+		if(greedyAction.second == AU_INV or greedyAction.second == AU_GR or greedyAction.second == AD_INV) {
+			greedyAction.second = actionq2.front();
+			actionq2.pop();
 		}
 	}
 

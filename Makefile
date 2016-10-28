@@ -20,7 +20,7 @@ run: $(TARGET)
 
 test: $(CPPFILES)
 	g++ -std=c++11 -o $(TESTTARGET) $(CPPFILES)
-	time ./$(TESTTARGET)
+	./$(TESTTARGET)
 
 
 clean:

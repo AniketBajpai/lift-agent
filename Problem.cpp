@@ -1,7 +1,5 @@
 #include <iostream>
 #include <cmath>
-#include <cstring>
-#include <vector>
 #include "State.h"
 
 double p, q, r;
@@ -273,4 +271,25 @@ int main() {
 	q = 0.5;
 	r = 0.5;
 	precompute(p, q, r);
+
+	Elevator* elevator = new Elevator();
+	elevator->position = 3;
+	elevator->is_up = false;
+	elevator->elevatorState = FULL;
+	elevator->alight[2] = 1;
+	elevator->alight[3] = 5;
+	elevator->alight[4] = 2;
+	elevator->alight[5] = 1;
+
+	queue<ElevatorAction> emptyq;
+
+	int num_out[N+1][N+1] = { {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 2, 1}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
+	double cost = elevator->applyAction(AOU, num_out);
+	cout << "Cost: " << cost << endl;
+
+	cout << "Elevator" << endl;
+	cout << elevator->toString() << endl;
+	cout << "Queue length: " << emptyq.size() << endl;
+	cout << num_out[3][4] << " " << num_out[3][5] << endl;
+
 }

@@ -1,4 +1,3 @@
-#include <vector>
 #include "UCTTree.h"
 
 UCTTree::UCTTree(State *startState) {
