@@ -27,7 +27,7 @@ State *State::getResState(Action action) {
 //}
 
 int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
-	int* distance = new int[2 * N + 1];
+	int *distance = new int[2 * N + 1];
 	int position_new;
 	switch (elevatorAction) {
 		case AU:
@@ -94,13 +94,17 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 				distance[2 * i - 1] = d[position_new][i][1][0] + 2 * groundDistance + 1;    // Down
 			}
 			for (int j = 1; j < position_new; ++j) {
-				distance[2*j] = groundDistance + 1 + j - 1;
+				distance[2 * j] = groundDistance + 1 + j - 1;
 			}
 			distance[2] = groundDistance;
 			break;
-//		case AS:
-//			// TODO
-//			break;
+		case AS:
+			position_new = elevator.position;
+			for (int i = 1; i <= N; ++i) {
+				distance[2 * i] = d[position_new][i][1][1];  // Up
+				distance[2 * i - 1] = d[position_new][i][1][0];    // Down
+			}
+			break;
 	}
 	distance[1] = 0;    // Exclude going down at 1
 	distance[2 * N] = 0;    // Exclude going up at N
@@ -111,7 +115,7 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 // cost of people inside lift after taking action
 double State::insideCost(Elevator &elevator, ElevatorAction elevatorAction) {
 	if ((elevator.elevatorState == JUST_FULL) or
-	    (elevator.elevatorState == FULL and (elevatorAction == AU or elevatorAction == AD))) {
+	    (elevator.elevatorState == FULL and (elevatorAction == AU or elevatorAction == AD or elevatorAction == AS))) {
 		return (elevator.getNumberOfPeople() * WAIT_COST);
 	}
 	else {
@@ -174,15 +178,17 @@ Action State::getPolicyAction() {
 		}
 	}
 
+	// TODO: delete action vectors and free memory
+
 	// Modify action for empty elevator
-	if(elevator1.elevatorState == EMPTY) {
-		if(greedyAction.first == AU_INV or greedyAction.first == AU_GR or greedyAction.first == AD_INV) {
+	if (elevator1.elevatorState == EMPTY) {
+		if (greedyAction.first == AU_INV or greedyAction.first == AU_GR or greedyAction.first == AD_INV) {
 			greedyAction.first = actionq1.front();
 			actionq1.pop();
 		}
 	}
-	if(elevator2.elevatorState == EMPTY) {
-		if(greedyAction.second == AU_INV or greedyAction.second == AU_GR or greedyAction.second == AD_INV) {
+	if (elevator2.elevatorState == EMPTY) {
+		if (greedyAction.second == AU_INV or greedyAction.second == AU_GR or greedyAction.second == AD_INV) {
 			greedyAction.second = actionq2.front();
 			actionq2.pop();
 		}

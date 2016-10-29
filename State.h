@@ -82,14 +82,14 @@ public:
 				actions.push_back(AU);
 				actions.push_back(AOU);
 			}
-			if(position > 1 and position < N) {
+			if (position > 1 and position < N) {
 				actions.push_back(AU_INV);
 				actions.push_back(AD_INV);
 			}
-			if(position == 3) {     // TODO: explore conditions in greater detail
+			if (position == 3) {     // TODO: explore conditions in greater detail
 				actions.push_back(AU_GR);
 			}
-//			actions.push_back(AS);  // TODO: add support for AS
+			actions.push_back(AS);
 		}
 		else if (this->elevatorState == JUST_FULL) {
 			assert(not q.empty());
