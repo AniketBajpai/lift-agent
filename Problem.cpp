@@ -193,7 +193,7 @@ void precompute_distance() {
 	for (int i = 1; i <= N; ++i) {  // elevator position
 		// elevator up, person up
 		for (int j = 1; j <= i - 1; ++j) {
-			d[i][j][1][1] = N - i + N + j;
+			d[i][j][1][1] = N - i + N - 1 + j - 1;
 		}
 		for (int j = i; j <= N; ++j) {
 			d[i][j][1][1] = (j - i);
@@ -206,7 +206,7 @@ void precompute_distance() {
 
 		// elevator down, person up
 		for (int j = 1; j <= N; ++j) {
-			d[i][j][0][1] = i + j;
+			d[i][j][0][1] = i - 1 + j - 1;
 		}
 
 		// elevator down, person down
@@ -214,7 +214,7 @@ void precompute_distance() {
 			d[i][j][0][0] = i - j;
 		}
 		for (int j = i + 1; j <= N; ++j) {
-			d[i][j][0][0] = i + N + N - j;
+			d[i][j][0][0] = i - 1 + N - 1 + N - j;
 		}
 	}
 }
@@ -272,24 +272,16 @@ int main() {
 	r = 0.5;
 	precompute(p, q, r);
 
-	Elevator* elevator = new Elevator();
-	elevator->position = 3;
-	elevator->is_up = false;
-	elevator->elevatorState = FULL;
-	elevator->alight[2] = 1;
-	elevator->alight[3] = 5;
-	elevator->alight[4] = 2;
-	elevator->alight[5] = 1;
-
-	queue<ElevatorAction> emptyq;
-
-	int num_out[N+1][N+1] = { {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 2, 1}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
-	double cost = elevator->applyAction(AOU, num_out);
-	cout << "Cost: " << cost << endl;
-
-	cout << "Elevator" << endl;
-	cout << elevator->toString() << endl;
-	cout << "Queue length: " << emptyq.size() << endl;
-	cout << num_out[3][4] << " " << num_out[3][5] << endl;
+	State* state = new State();
+	cout << state->toString() << endl;
+	state->elevator1.position = 4;
+	state->elevator1.elevatorState = EMPTY;
+	state->elevator1.is_up = true;
+	int* distance;
+	distance = state->getDistanceArr(state->elevator1, AU_GR);
+	cout << "Distance: " << endl;
+	for (int i = 1; i <= N; ++i) {
+		cout << distance[2*i] << " " << distance[2*i-1] << endl;
+	}
 
 }

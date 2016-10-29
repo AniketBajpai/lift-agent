@@ -140,9 +140,9 @@ public:
 				q.push(AD);
 			}
 			q.push(AOU);
-			for (int i = 1; i < position; ++i) {
-				q.push(AU);
-			}
+//			for (int i = 1; i < position; ++i) {
+//				q.push(AU);
+//			}
 			this->elevatorState = JUST_FULL;
 			is_up = true;
 		}

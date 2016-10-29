@@ -27,7 +27,7 @@ State *State::getResState(Action action) {
 //}
 
 int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
-	int distance[2 * N + 1];
+	int* distance = new int[2 * N + 1];
 	int position_new;
 	switch (elevatorAction) {
 		case AU:
@@ -39,6 +39,7 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 			}
 			break;
 		case AOU:
+			assert(elevator.position < N);
 			position_new = elevator.position;
 			for (int i = 1; i <= N; ++i) {
 				distance[2 * i] = d[position_new][i][1][1];  // Up
@@ -54,6 +55,7 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 			}
 			break;
 		case AOD:
+			assert(elevator.position > 1);
 			position_new = elevator.position;
 			for (int i = 1; i <= N; ++i) {
 				distance[2 * i] = d[position_new][i][0][1];  // Up
@@ -80,7 +82,7 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 				distance[2 * i] = d[position_new][i][0][1] + 3;  // Up
 				distance[2 * i - 1] = d[position_new][i][0][0] + 3;    // Down
 			}
-			distance[2 * (position_new - 1) - 1] = 1;
+			distance[2 * (position_new + 1) - 1] = 1;
 			break;
 		case AU_GR:
 			assert(elevator.elevatorState == EMPTY);
@@ -88,8 +90,11 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 			position_new = elevator.position;
 			int groundDistance = elevator.position - 1;
 			for (int i = 1; i <= N; ++i) {
-				distance[2 * i] = d[position_new][i][0][1] + 2 * groundDistance + 1;  // Up
-				distance[2 * i - 1] = d[position_new][i][0][0] + 2 * groundDistance + 1;    // Down
+				distance[2 * i] = d[position_new][i][1][1] + 2 * groundDistance + 1;  // Up
+				distance[2 * i - 1] = d[position_new][i][1][0] + 2 * groundDistance + 1;    // Down
+			}
+			for (int j = 1; j < position_new; ++j) {
+				distance[2*j] = groundDistance + 1 + j - 1;
 			}
 			distance[2] = groundDistance;
 			break;
