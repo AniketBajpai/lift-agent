@@ -10,6 +10,8 @@ State::State() {
 	Elevator elevator2();
 	memset(time_up, 0, sizeof(time_up));
 	memset(time_down, 0, sizeof(time_down));
+	actionq1 = queue<ElevatorAction>();
+	actionq2 = queue<ElevatorAction>();
 }
 
 
@@ -98,13 +100,13 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 			}
 			distance[2] = groundDistance;
 			break;
-		case AS:
-			position_new = elevator.position;
-			for (int i = 1; i <= N; ++i) {
-				distance[2 * i] = d[position_new][i][1][1];  // Up
-				distance[2 * i - 1] = d[position_new][i][1][0];    // Down
-			}
-			break;
+//		case AS:
+//			position_new = elevator.position;
+//			for (int i = 1; i <= N; ++i) {
+//				distance[2 * i] = d[position_new][i][1][1];  // Up
+//				distance[2 * i - 1] = d[position_new][i][1][0];    // Down
+//			}
+//			break;
 	}
 	distance[1] = 0;    // Exclude going down at 1
 	distance[2 * N] = 0;    // Exclude going up at N
@@ -113,10 +115,18 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 }
 
 // cost of people inside lift after taking action
-double State::insideCost(Elevator &elevator, ElevatorAction elevatorAction) {
-	if ((elevator.elevatorState == JUST_FULL) or
-	    (elevator.elevatorState == FULL and (elevatorAction == AU or elevatorAction == AD or elevatorAction == AS))) {
-		return (elevator.getNumberOfPeople() * WAIT_COST);
+double State::insideCost(Elevator &elevator, int* distance) {
+	if (elevator.elevatorState == FULL) {
+		double cost = 0;
+		for (int i = 1; i <= N; ++i) {
+			if(elevator.is_up) {
+				cost += (elevator.alight[i] * distance[2*i] * WAIT_COST);
+			}
+			else {
+				cost += (elevator.alight[i] * distance[2*i-1] * WAIT_COST);
+			}
+		}
+		return cost;
 	}
 	else {
 		return 0;
@@ -126,21 +136,52 @@ double State::insideCost(Elevator &elevator, ElevatorAction elevatorAction) {
 
 double State::getMinCost(int distance1[2 * N + 1], int distance2[2 * N + 1]) {
 	double cost = 0;
+	const double MAX_COST =  N * T;
 	int d_min_up, d_min_down;
 	int up_time, down_time;
+//	cout << "Distances: " << endl;
 	for (int i = 1; i <= N; ++i) {
 		d_min_up = min(distance1[2 * i], distance2[2 * i]);
 		d_min_down = min(distance1[2 * i - 1], distance2[2 * i - 1]);
-		up_time = time_up[i] + d_min_up;
-		down_time = time_down[i] + d_min_down;
-		assert(up_time <= T);
-		assert(down_time <= T);
-		// wait cost
-		cost += (n_exp_up[i][up_time][down_time] * WAIT_COST);
-		cost += (n_exp_down[i][up_time][down_time] * WAIT_COST);
-		// electricity cost
-		cost += (d_min_up * ELECTRICITY_COST);
-		cost += (d_min_down * ELECTRICITY_COST);
+//		cout << d_min_up << " " << d_min_down << endl;
+		if(time_up[i] != 0) {
+			up_time = time_up[i] + d_min_up;
+		}
+		else {
+			double time = 0;
+			for (int j = 1; j <= T; ++j) {
+				if(j > d_min_up)
+					break;
+				time += (P_arrived[i][i][j] * (d_min_up - j));
+			}
+			up_time = (int)round(time);
+		}
+		if(time_down[i] != 0) {
+			down_time = time_down[i] + d_min_down;
+		}
+		else {
+			double time = 0;
+			for (int j = 1; j <= T; ++j) {
+				if(j > d_min_down)
+					break;
+				time += (P_arrived[i][i][j] * (d_min_down - j));
+			}
+			down_time = (int)round(time);
+		}
+		if(up_time <= T and down_time <= T) {
+			assert(up_time <= T);
+			assert(down_time <= T);
+			// wait cost
+			cost += (n_exp_up[i][up_time][down_time] * WAIT_COST);
+			cost += (n_exp_down[i][up_time][down_time] * WAIT_COST);
+			// Electricity cost not counted for now, as it is inevitable
+//			// electricity cost
+//			cost += (d_min_up * ELECTRICITY_COST);
+//			cost += (d_min_down * ELECTRICITY_COST);
+		}
+		else {
+			cost = MAX_COST; // TODO: improve
+		}
 	}
 
 	return cost;
@@ -169,8 +210,8 @@ Action State::getPolicyAction() {
 			int *distance1 = getDistanceArr(elevator1, action1);
 			int *distance2 = getDistanceArr(elevator2, action2);
 			// Greedy policy
-			double cost = getMinCost(distance1, distance2) + insideCost(elevator1, action1) +
-			              insideCost(elevator2, action2);
+			double cost = getMinCost(distance1, distance2) + insideCost(elevator1, distance1) +
+			              insideCost(elevator2, distance2);
 			if (cost < minCost) {
 				greedyAction = make_pair(action1, action2);
 				minCost = cost;

@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <queue>
+#include <iostream>    // Only during debugging
 
 extern double p, q, r;
 const int T = 2 * N - 1;
@@ -64,11 +65,11 @@ public:
 	vector<ElevatorAction> getActions(queue <ElevatorAction> &q) {
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
-			if (is_up) {
+			if (is_up and position < N) {
 				actions.push_back(AU);
 				actions.push_back(AOU);
 			}
-			else if (not is_up) {
+			else if (!is_up and position > 1) {
 				actions.push_back(AD);
 				actions.push_back(AOD);
 			}
@@ -170,7 +171,7 @@ public:
 	}
 
 	double applyAction(ElevatorAction action, int num_out[N + 1][N + 1]) {
-		assert((action == AU_INV) and (action == AU_GR) and (action == AD_INV));
+		assert((action != AU_INV) and (action != AU_GR) and (action != AD_INV));
 		double cost = 0;
 		if ((action == AU) and (position < N)) {
 			position++;
@@ -237,7 +238,7 @@ public:
 
 	int *getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction);
 
-	double insideCost(Elevator &elevator, ElevatorAction elevatorAction);
+	double insideCost(Elevator &elevator, int* distance);
 
 	double getMinCost(int distance1[2 * N + 2], int distance2[2 * N + 2]);
 
@@ -252,6 +253,22 @@ public:
 	double runSimulation(int epochs);
 
 	string toString();
+
+	static void printDistances(int* distance) {
+		cout << "Distances: " << endl;
+		for (int i = 1; i <= N; ++i) {
+			cout << distance[2*i] << " " << distance[2*i-1] << endl;
+		}
+		cout << endl;
+	}
+
+	static void printActions(vector<ElevatorAction>& actions) {
+		cout << "Actions: " << endl;
+		for(auto action: actions) {
+			cout << action << " ";
+		}
+		cout << endl;
+	}
 };
 
 #endif //LIFT_AGENT_STATE_H
