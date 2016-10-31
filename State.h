@@ -90,7 +90,7 @@ public:
 			if (position == 3) {     // TODO: explore conditions in greater detail
 				actions.push_back(AU_GR);
 			}
-			actions.push_back(AS);
+//			actions.push_back(AS);
 		}
 		else if (this->elevatorState == JUST_FULL) {
 			assert(not q.empty());
@@ -231,12 +231,16 @@ public:
 	Elevator elevator2;
 	int time_up[N + 1];
 	int time_down[N + 1];
+	queue<ElevatorAction> actionq1;
+	queue<ElevatorAction> actionq2;
 
 	State();
 
 	State *getResState(Action action);
 
 	int *getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction);
+
+	int* getMinDistanceArr(int* distance1, int* distance2);
 
 	double insideCost(Elevator &elevator, int* distance);
 
@@ -248,9 +252,7 @@ public:
 
 	double applyAction(Action action, int num_out[N + 1][N + 1]);
 
-	double getWaitCost(Action action, int num_out[N + 1][N + 1]);
-
-	double runSimulation(int epochs);
+	double getWaitCost(int num_out[N + 1][N + 1]);
 
 	string toString();
 

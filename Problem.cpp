@@ -192,7 +192,7 @@ void precompute_distance() {
 	memset(d, 0, sizeof(d));
 	for (int i = 1; i <= N; ++i) {  // elevator position
 		// elevator up, person up
-		for (int j = 1; j <= i - 1; ++j) {
+		for (int j = 1; j < i; ++j) {
 			d[i][j][1][1] = N - i + N - 1 + j - 1;
 		}
 		for (int j = i; j <= N; ++j) {
@@ -281,29 +281,35 @@ int main() {
 
 	State *state = new State();
 	state->elevator1.position = 3;
-	state->elevator1.elevatorState = FULL;
-	state->elevator1.is_up = true;
-	state->elevator1.alight[4] = 1;
+	state->elevator1.elevatorState = EMPTY;
+	state->elevator1.is_up = false;
+//	state->elevator1.alight[4] = 1;
 	state->elevator2.position = 2;
-	state->elevator2.elevatorState = FULL;
+	state->elevator2.elevatorState = EMPTY;
 	state->elevator2.is_up = false;
-	state->elevator2.alight[1] = 1;
+//	state->elevator2.alight[1] = 1;
 
-	state->time_up[3] = 9;
-
-//	cout << state->toString() << endl;
-
-	int* distance1_open = state->getDistanceArr(state->elevator1, AOU);
-//	state->printDistances(distance1_open);
-	int* distance1_up = state->getDistanceArr(state->elevator1, AU);
-//	state->printDistances(distance1_up);
-	int* distance2 = state->getDistanceArr(state->elevator2, AOD);
-//	cout << "Open: " << state->getMinCost(distance1_open, distance2) << endl;
-//	cout << "Up: " << state->getMinCost(distance1_up, distance2) << endl;
-	Action action = state->getPolicyAction();
-	
-	cout << "ACTIONS:" << endl;
-	cout << action.first << " " << action.second << endl << endl;
+	state->time_up[2] = 3;
+	state->time_up[4] = 3;
 
 //	cout << state->toString() << endl;
+
+//	int* distance1 = state->getDistanceArr(state->elevator1, AU);
+//	int* distance2_down = state->getDistanceArr(state->elevator2, AD);
+//	int* distance2_open = state->getDistanceArr(state->elevator2, AOU);
+//	cout << "DOWN:" << endl;
+//	state->printDistances(state->getMinDistanceArr(distance1, distance2_down));
+//	cout << (state->getMinCost(distance1, distance2_down) /*+ state->insideCost(state->elevator1, distance1) + state->insideCost(state->elevator2, distance2_down)*/) << endl;
+//	cout << "OPEN UP:" << endl;
+//	state->printDistances(state->getMinDistanceArr(distance1, distance2_open));
+//	cout << (state->getMinCost(distance1, distance2_open) /*+ state->insideCost(state->elevator1, distance1) + state->insideCost(state->elevator2, distance2_open)(*/) << endl;
+//
+//	Action action = state->getPolicyAction();
+//	cout << "ACTIONS:" << endl;
+//	cout << action.first << " " << action.second << endl << endl;
+//
+//	cout << state->toString() << endl;
+
+	double cost = state->runSimulation(1);
+
 }
