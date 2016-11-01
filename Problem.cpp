@@ -1,8 +1,8 @@
 #include<bits/stdc++.h>
 #include <iostream>
 #include <cmath>
-#include "State.h"
 #include <set>
+#include "UCTGraph.h"
 double p, q, r;
 int timeStamp;
 vector< set < pair<int, pair<int, int>  > > > lift1Stopped;   // 1: floor number 2.1:time at which button up was presssed  2.2 time at which button down was prssed  
@@ -428,10 +428,11 @@ Action findAction()
 {
 	double expectiCost[25];   // 0 : AU   1:AD 
 	memset(expectiCost, 0, sizeof(expectiCost));
-	vector<pair<Action,double>> v;
+	vector<pair<Action,double> > v;
 	for(int i=0;i<nextStates.size();i++)
-	{
-		v=dummyCost();//call fxn nextStates[i].second* //
+	{	State *s123=  & nextStates[i].first;
+		//printS(s123) ;
+		v=UCTGraph::getBaseCosts(s123,1);   //dummyCost();//call fxn nextStates[i].second* //
 		for(int j=0;j<v.size();j++)
 		{
 			expectiCost[j] = expectiCost[j]+ nextStates[i].second*v[j].second ;
