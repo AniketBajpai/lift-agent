@@ -12,6 +12,7 @@ const double ELECTRICITY_COST = 1.0;
 
 const double C_policy = 1.5;
 
+
 enum ElevatorAction {
 	AU,
 	AD,
@@ -24,6 +25,7 @@ enum ElevatorAction {
 };
 
 typedef pair<ElevatorAction, ElevatorAction> Action;
+ 
 
 enum ElevatorState {
 	FULL,

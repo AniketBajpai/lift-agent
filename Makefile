@@ -8,7 +8,7 @@ CFLAGS  = -w -Ofast -march=native -std=c++11
 # the build target executable:
 TARGET = agent
 TESTTARGET = agenttest
-CPPFILES = Problem.cpp State.cpp
+CPPFILES = Problem.cpp State.cpp UCTGraph.cpp
 
 all: $(TARGET)
 

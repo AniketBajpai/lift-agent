@@ -1,9 +1,14 @@
+#include<bits/stdc++.h>
 #include <iostream>
 #include <cmath>
-#include "State.h"
-
+#include <set>
+#include "UCTGraph.h"
 double p, q, r;
-
+int timeStamp;
+vector< set < pair<int, pair<int, int>  > > > lift1Stopped;   // 1: floor number 2.1:time at which button up was presssed  2.2 time at which button down was prssed  
+vector< set < pair<int, pair<int, int>  > > > lift2Stopped;
+vector<pair<State, double>> nextStates ;
+map<ElevatorAction,string> decodes;
 double P[
 		T + 2][
 		N + 1][
@@ -19,6 +24,7 @@ double n_exp_up[N + 1][T + 2][T + 2];     // expected no. of people going up fro
 double n_exp_down[N + 1][T + 2][T + 2];   // expected no. of people going down from f
 
 int d[N + 1][N + 1][2][2];  // distance between elevator and person given direction of elevator and person
+
 
 void precompute_P_arrival(double p, double q, double r) {
 	memset(P_arrived, 0, sizeof(P_arrived));
@@ -225,6 +231,16 @@ void precompute(double p, double q, double r) {
 	precompute_n_exp(p, q, r);
 	precompute_n_exp_up_down();
 	precompute_distance();
+	for(int i=1;i<N+1;i++)
+	{
+		set<pair<int , pair< int , int>  >> temp ;
+		lift1Stopped.push_back(temp) ;
+		lift2Stopped.push_back(temp) ;
+ 	}
+ 	decodes[AU]="AU";
+  	decodes[AD]="AD";
+  	decodes[AOU]="AOU";
+  	decodes[AOD]="AOD";
 }
 
 double getRemCost(Elevator elevator) {
@@ -265,33 +281,214 @@ double evaluateTerminalState(State state) {
 //
 //	}
 //}
+ 
+ void findNextStates2(int floor1, int floor2, State s, double prob)
+ {
 
+ 	if(floor2>=N+1)
+ 		{	nextStates.push_back(pair<State , double>(s, prob));
+ 			return; 
+ 		}
+ 	if(floor1>=N+1)
+ 		{
+ 			if(s.elevator2.btnPressed[floor2])
+ 			{
+ 				for(int i=1;i<N+1;i++)
+	 			{
+	 				State temp= s; 
+	 				temp.elevator2.alight[floor2]=i ;
+	 				double p=0.0 ;
+	 				set<pair<int, pair<int ,int>>>::iterator it ;
+	 				for (it=lift2Stopped[floor2].begin(); it!=lift2Stopped[floor2].end()&&lift2Stopped[floor2].size(); ++it)
+    				{//cout << ' ' << it->first<<it->second;
+    					p= p+ P[i][it->first][floor2][it->second.first][it->second.second] ;
+    				}	
+	 				findNextStates2(floor1, floor2+1, temp, prob*p);
+	 			}	
+ 			}
+ 			else
+ 			{
+ 				findNextStates2(floor1,floor2+1,s,prob);		
+ 			}
+ 		}	
+ 	else if(s.elevator1.btnPressed[floor1])
+ 		{
+ 			for(int i=1;i<N+1;i++)
+ 			{	 
+ 				State temp= s; 
+ 				temp.elevator1.alight[floor1]=i ;
+ 				
+ 				double p=0.0 ;
+	 			set<pair<int, pair<int ,int>>>::iterator it ;
+	 			for (it=lift1Stopped[floor1].begin(); it!=lift1Stopped[floor1].end()&&lift1Stopped[floor1].size(); ++it)
+    			{//cout << ' ' << it->first<<it->second;
+    				cout<<"yo"<<endl;
+    				p= p+ P[i][it->first][floor2][it->second.first][it->second.second] ;
+    			}
+ 				findNextStates2(floor1+1, floor2, temp, prob*p);
+ 			}
+ 		}
+ 		else
+ 		{
+ 			findNextStates2(floor1+1,floor2,s,prob);
+ 		}	 
+ } 
+
+vector< pair<Action,double>> dummyCost()
+{
+	vector< pair<Action,double>> temp ;
+	for(int i=0;i<4;i++)
+	{
+		pair<Action,double> t1=pair<Action,double>( pair<ElevatorAction,ElevatorAction>(AU,AU),100); 	
+		temp.push_back(t1) ;
+	}
+	return temp ;
+}
+void changes(State &s, ElevatorAction s1, ElevatorAction s2)
+{
+	for(int i=1;i<N+1;i++)
+	{
+		if(s.time_up[i]>0)
+		{
+			s.time_up[i]++; 
+		}
+		if(s.time_down[i]>0)
+		{
+			s.time_down[i]++; 
+		}
+	}
+	switch(s1)
+	{
+		case AU :
+		break;
+		case AOU : lift1Stopped[s.elevator1.position].clear();  
+					for(int i=s.elevator1.position+1;i<N+1;i++)  
+						{
+							int a=s.time_up[s.elevator1.position] ;
+							int b=s.time_down[s.elevator1.position]; 
+							pair<int, int > temp= pair<int, int >(a,b) ;
+							lift1Stopped[i].insert(pair<int, pair<int , int> >(s.elevator1.position,temp)); 
+			
+						}
+						s.time_up[s.elevator1.position]=0;
+						s.elevator1.btnPressed[s.elevator1.position]=false; 
+		break ;
+		case AD :
+		break; 
+		case AOD :  lift1Stopped[s.elevator1.position].clear();  
+					for(int i=s.elevator1.position-1;i>0;i--)  
+						{
+							int a=s.time_up[s.elevator1.position] ;
+							int b=s.time_down[s.elevator1.position]; 
+							pair<int, int > temp= pair<int, int >(a,b) ;
+							lift1Stopped[i].insert(pair<int, pair<int , int> >(s.elevator1.position,temp)); 
+			
+						}
+						s.time_down[s.elevator1.position]=0;
+						s.elevator1.btnPressed[s.elevator1.position]=false;
+		break;
+		default:  break ;
+
+	}
+	switch(s2)
+	{
+		case AU :
+		break;
+		case AOU :lift2Stopped[s.elevator2.position].clear();  
+					for(int i=s.elevator2.position+1;i<N+1;i++)  
+						{
+							int a=s.time_up[s.elevator2.position] ;
+							int b=s.time_down[s.elevator2.position]; 
+							pair<int, int > temp= pair<int, int >(a,b) ;
+							lift2Stopped[i].insert(pair<int, pair<int , int> >(s.elevator2.position,temp)); 
+			
+						}
+						s.time_up[s.elevator2.position]=0;
+						s.elevator2.btnPressed[s.elevator2.position]=false;
+		break ;
+		case AD :
+		break; 
+		case AOD : lift2Stopped[s.elevator2.position].clear();  
+					for(int i=s.elevator2.position-1;i>0;i--)  
+						{
+							int a=s.time_up[s.elevator2.position] ;
+							int b=s.time_down[s.elevator2.position]; 
+							pair<int, int > temp= pair<int, int >(a,b) ;
+							lift2Stopped[i].insert(pair<int, pair<int , int> >(s.elevator2.position,temp)); 
+			
+						}
+						s.time_down[s.elevator2.position]=0;
+						s.elevator2.btnPressed[s.elevator2.position]=false;
+		break;
+		default: break;
+
+	}
+} 
+Action findAction()
+{
+	double expectiCost[25];   // 0 : AU   1:AD 
+	memset(expectiCost, 0, sizeof(expectiCost));
+	vector<pair<Action,double> > v;
+	for(int i=0;i<nextStates.size();i++)
+	{	State *s123=  & nextStates[i].first;
+		//printS(s123) ;
+		v=UCTGraph::getBaseCosts(s123,1);   //dummyCost();//call fxn nextStates[i].second* //
+		for(int j=0;j<v.size();j++)
+		{
+			expectiCost[j] = expectiCost[j]+ nextStates[i].second*v[j].second ;
+		} 
+	} 
+	double temp = LONG_MIN ;
+	int act ;
+	for(int i=0;i<v.size();i++)
+	{
+		if(expectiCost[i]>temp)
+		{
+			act= i ; 
+		}
+	} 
+	return v[act].first ;
+}
 int main() {
 	p = 0.8;
 	q = 0.5;
 	r = 0.5;
 	precompute(p, q, r);
-
+   cerr<<"started";
 //	 find integer values for actions
 //	cout << AU << endl;
 //	cout << AD << endl;
 //	cout << AOU << endl;
 //	cout << AOD << endl;
 //	cout << AS << endl;
+	//state->time_up[2] = 3;
+	//state->time_up[4] = 3;
+   	cout<<"0"<<endl;
+   	cout<<flush; 
+   	cerr<<"started1"; 
+   	State present ;
+   	// read from simulator  
+    // update alight
+    while(true)
+    {   timeStamp++;
+    	string s;  
+	    getline(cin,s); 
+	   	present.update(s);  
+	   	//printS(present);
+	   	nextStates.clear();
+	   	present.elevator1.resetAlight();
+	   	present.elevator2.resetAlight();
+	   findNextStates2(1,1,present,1);   //TODO take care of the state with probability 1
+	   Action nextAct= findAction() ;
 
-	State *state = new State();
-	state->elevator1.position = 3;
-	state->elevator1.elevatorState = EMPTY;
-	state->elevator1.is_up = false;
-//	state->elevator1.alight[4] = 1;
-	state->elevator2.position = 2;
-	state->elevator2.elevatorState = EMPTY;
-	state->elevator2.is_up = false;
-//	state->elevator2.alight[1] = 1;
-
-	state->time_up[2] = 3;
-	state->time_up[4] = 3;
-
+	   changes(present,nextAct.first,nextAct.second) ;
+	   
+	   cout<<decodes[nextAct.first]<<"1 "<<decodes[nextAct.second]<<"2 "<<endl; 
+		//cout<<nextStates.size();   		
+		///printS(nextStates[5].first);
+		//cout<<"prob"<<nextStates[5].second<<endl;
+    }
+    //
 //	cout << state->toString() << endl;
 
 //	int* distance1 = state->getDistanceArr(state->elevator1, AU);
@@ -310,6 +507,6 @@ int main() {
 //
 //	cout << state->toString() << endl;
 
-	double cost = state->runSimulation(1);
+	//double cost = state->runSimulation(1);
 
 }

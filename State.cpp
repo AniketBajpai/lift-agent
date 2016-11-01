@@ -1,3 +1,4 @@
+#include <bits/stdc++.h>
 #include <random>
 #include "State.h"
 
@@ -378,4 +379,103 @@ string State::toString() {
 	stateStr += (downTimeStr + "\n");
 	return stateStr;
 }
+//helper fxns for splitting
+/*void split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+}
 
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}*/
+//end of helper function for splitting 
+void State::update(string s)
+{
+	vector<string> input; //= split("s", ' ');	
+	
+	istringstream iss(s);
+    copy(istream_iterator<string>(iss),
+         istream_iterator<string>(),
+         back_inserter(input));
+
+	//cout<<input[0]<<endl;
+	//cout<<input.size(); 
+	if(input[0]=="0"&&input.size()==1)
+		return ;
+	for(int i=0;i<input.size();i++)
+	{
+		char a=input[i][1];
+		char b=input[i][3];
+		int f= b-48;  
+		//cout<<a<<b;
+		if(a=='U')
+		{
+			time_up[f]++; 
+		} 
+		else if(a=='D')
+		{
+			time_down[f]++; 
+		}
+		else
+		{
+			if(input[i][4]=='1')
+			{	//cout<<"yo"; 
+				elevator1.btnPressed[input[i][2]-48]= true;    //TODO: make button pressed false when liy opens at a floor  
+			}
+			else if(input[i][4]=='2')
+			{	//cout<<"yo2";
+				elevator2.btnPressed[input[i][2]-48]= true;
+			}
+		}
+
+	} 
+} 
+
+void printS(State s)
+{	cout<<"TIME UP:";
+	for(int i=1;i<N+1;i++)
+	{
+		cout<<s.time_up[i]<<" ";
+	} 
+	cout<<endl; 
+	cout<<"TIME DOWN:";
+	for(int i=1;i<N+1;i++)
+	{
+		cout<<s.time_down[i]<<" ";
+	} 
+	cout<<endl; 
+
+	cout<<"ALIGHT elevator1"<<endl; 
+	for(int i=1;i<N+1;i++)
+	{
+		cout<<s.elevator1.alight[i]<<" ";
+	} 
+	cout<<endl; 
+
+	cout<<"BTN pressed elevator1"<<endl; 
+	for(int i=1;i<N+1;i++)
+	{
+		cout<<s.elevator1.btnPressed[i]<<" ";
+	} 
+	cout<<endl;
+
+	cout<<"ALIGHT elevator2"<<endl; 
+	for(int i=1;i<N+1;i++)
+	{
+		cout<<s.elevator2.alight[i]<<" ";
+	} 
+	cout<<endl;
+	cout<<"BTN pressed elevator2"<<endl; 
+	for(int i=1;i<N+1;i++)
+	{
+		cout<<s.elevator2.btnPressed[i]<<" ";
+	} 
+	cout<<endl;
+} 
