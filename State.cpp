@@ -1,6 +1,7 @@
 #include <random>
 #include "State.h"
 
+
 State::State() {
 	elevator1 = Elevator();
 	elevator2 = Elevator();
@@ -112,24 +113,24 @@ int *State::getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction) {
 
 
 int *State::getMinDistanceArr(int *distance1, int *distance2) {
-	int* distance = new int[2*N+1];
+	int *distance = new int[2 * N + 1];
 	for (int i = 1; i <= N; ++i) {
-		distance[2*i] = min(distance1[2*i], distance2[2*i]);
-		distance[2*i-1] = min(distance1[2*i-1], distance2[2*i-1]);
+		distance[2 * i] = min(distance1[2 * i], distance2[2 * i]);
+		distance[2 * i - 1] = min(distance1[2 * i - 1], distance2[2 * i - 1]);
 	}
 	return distance;
 }
 
 // cost of people inside lift after taking action
-double State::insideCost(Elevator &elevator, int* distance) {
+double State::insideCost(Elevator &elevator, int *distance) {
 	if (elevator.elevatorState == FULL) {
 		double cost = 0;
 		for (int i = 1; i <= N; ++i) {
-			if(elevator.is_up) {
-				cost += (elevator.alight[i] * distance[2*i] * WAIT_COST);
+			if (elevator.is_up) {
+				cost += (elevator.alight[i] * distance[2 * i] * WAIT_COST);
 			}
 			else {
-				cost += (elevator.alight[i] * distance[2*i-1] * WAIT_COST);
+				cost += (elevator.alight[i] * distance[2 * i - 1] * WAIT_COST);
 			}
 		}
 		return cost;
@@ -142,7 +143,7 @@ double State::insideCost(Elevator &elevator, int* distance) {
 
 double State::getMinCost(int distance1[2 * N + 1], int distance2[2 * N + 1]) {
 	double cost = 0;
-	const double MAX_COST =  N * T;
+	const double MAX_COST = N * T;
 	int d_min_up, d_min_down;
 	int up_time, down_time;
 //	cout << "Distances: " << endl;
@@ -150,31 +151,31 @@ double State::getMinCost(int distance1[2 * N + 1], int distance2[2 * N + 1]) {
 		d_min_up = min(distance1[2 * i], distance2[2 * i]);
 		d_min_down = min(distance1[2 * i - 1], distance2[2 * i - 1]);
 //		cout << d_min_up << " " << d_min_down << endl;
-		if(time_up[i] != 0) {
+		if (time_up[i] != 0) {
 			up_time = time_up[i] + d_min_up;
 		}
 		else {
 			double time = 0;
 			for (int j = 1; j <= T; ++j) {
-				if(j > d_min_up)
+				if (j > d_min_up)
 					break;
 				time += (P_arrived[i][i][j] * (d_min_up - j));
 			}
-			up_time = (int)round(time);
+			up_time = (int) round(time);
 		}
-		if(time_down[i] != 0) {
+		if (time_down[i] != 0) {
 			down_time = time_down[i] + d_min_down;
 		}
 		else {
 			double time = 0;
 			for (int j = 1; j <= T; ++j) {
-				if(j > d_min_down)
+				if (j > d_min_down)
 					break;
 				time += (P_arrived[i][i][j] * (d_min_down - j));
 			}
-			down_time = (int)round(time);
+			down_time = (int) round(time);
 		}
-		if(up_time <= T and down_time <= T) {
+		if (up_time <= T and down_time <= T) {
 			assert(up_time <= T);
 			assert(down_time <= T);
 			// wait cost
@@ -217,8 +218,8 @@ Action State::getPolicyAction() {
 			int *distance2 = getDistanceArr(elevator2, action2);
 			// Greedy policy
 			double cost = getMinCost(distance1, distance2) +
-					insideCost(elevator1, distance1) +
-			        insideCost(elevator2, distance2);
+			              insideCost(elevator1, distance1) +
+			              insideCost(elevator2, distance2);
 			if (cost < minCost) {
 				greedyAction = make_pair(action1, action2);
 				minCost = cost;
@@ -310,13 +311,25 @@ double State::getWaitCost(int num_out[N + 1][N + 1]) {
 	// people outside elevator
 	for (int i = 1; i <= N; ++i) {
 		for (int j = 1; j <= N; ++j) {
-			cost += num_out[i][j];
+			cost += (num_out[i][j] * WAIT_COST);
 		}
 	}
 	return cost;
 }
 
-double runSimulation(State* startState, Action action, int epochs) {
+vector<Action> State::getSimpleActions() {
+	vector<Action> actions;
+	vector<ElevatorAction> actions1 = elevator1.getSimpleActions();
+	vector<ElevatorAction> actions2 = elevator2.getSimpleActions();
+	for (auto action1: actions1) {
+		for (auto action2: actions2) {
+			actions.push_back(make_pair(action1, action2));
+		}
+	}
+	return actions;
+}
+
+double runSimulation(State *startState, Action action, int epochs) {
 	double cost = 0;
 	int num_out[N + 1][N + 1];  // number of people going from floor1 to floor2
 	memset(num_out, 0, sizeof(num_out));
@@ -330,16 +343,17 @@ double runSimulation(State* startState, Action action, int epochs) {
 	cost += startState->applyAction(action, num_out);   // Initial action cost
 	cost += startState->getWaitCost(num_out);
 
-	ElevatorState  prevState, currState;
+	ElevatorState prevState, currState;
 	while (epochs > 0) {
 		prevState = startState->elevator1.elevatorState;
 		Action chosenAction = startState->getPolicyAction();
 		startState->simulateStep(num_out);  // simulator step
 		currState = startState->elevator1.elevatorState;
-		cost += startState->applyAction(chosenAction, num_out);  // change lift state according to action, add action cost
+		cost += startState->applyAction(chosenAction,
+		                                num_out);  // change lift state according to action, add action cost
 		cost += startState->getWaitCost(num_out);  // Add wait cost
 		bool isNewEpoch = (prevState == FULL and currState == EMPTY);
-		if(isNewEpoch)
+		if (isNewEpoch)
 			epochs--;
 	}
 

@@ -62,6 +62,20 @@ public:
 		return num;
 	}
 
+	vector<ElevatorAction> getSimpleActions() {
+		vector<ElevatorAction> actions;
+		if (position < N) {
+			actions.push_back(AU);
+			actions.push_back(AOU);
+		}
+		else if (position > 1) {
+			actions.push_back(AD);
+			actions.push_back(AOD);
+		}
+//		actions.push_back(AS);
+		return actions;
+	}
+
 	vector<ElevatorAction> getActions(queue <ElevatorAction> &q) {
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
@@ -231,8 +245,8 @@ public:
 	Elevator elevator2;
 	int time_up[N + 1];
 	int time_down[N + 1];
-	queue<ElevatorAction> actionq1;
-	queue<ElevatorAction> actionq2;
+	queue <ElevatorAction> actionq1;
+	queue <ElevatorAction> actionq2;
 
 	State();
 
@@ -240,9 +254,9 @@ public:
 
 	int *getDistanceArr(Elevator &elevator, ElevatorAction elevatorAction);
 
-	int* getMinDistanceArr(int* distance1, int* distance2);
+	int *getMinDistanceArr(int *distance1, int *distance2);
 
-	double insideCost(Elevator &elevator, int* distance);
+	double insideCost(Elevator &elevator, int *distance);
 
 	double getMinCost(int distance1[2 * N + 2], int distance2[2 * N + 2]);
 
@@ -254,23 +268,26 @@ public:
 
 	double getWaitCost(int num_out[N + 1][N + 1]);
 
+	vector<Action> getSimpleActions();
+
 	string toString();
 
-	static void printDistances(int* distance) {
+	static void printDistances(int *distance) {
 		cout << "Distances: " << endl;
 		for (int i = 1; i <= N; ++i) {
-			cout << distance[2*i] << " " << distance[2*i-1] << endl;
+			cout << distance[2 * i] << " " << distance[2 * i - 1] << endl;
 		}
 		cout << endl;
 	}
 
-	static void printActions(vector<ElevatorAction>& actions) {
+	static void printActions(vector<ElevatorAction> &actions) {
 		cout << "Actions: " << endl;
-		for(auto action: actions) {
+		for (auto action: actions) {
 			cout << action << " ";
 		}
 		cout << endl;
 	}
+
 };
 
 #endif //LIFT_AGENT_STATE_H
