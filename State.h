@@ -24,11 +24,15 @@ public:
 	ElevatorState elevatorState;
 	bool is_up;
 
+	bool btnPressed[N+1] ; 
+
 	Elevator() {
 		this->position = rand() % (N - 1) + 1;
 		memset(alight, 0, sizeof(alight));
 		elevatorState = EMPTY;
 		is_up = (bool) (rand() % 2);
+		for(int i=1;i<N+1;i++)
+		btnPressed[i]= false;//, sizeof(btnPressed));
 	}
 
 	// check if elevator is empty
@@ -52,7 +56,10 @@ public:
 			return (num_alight == 0);
 		}
 	}
-
+	void resetAlight()
+	{
+		memset(alight, 0, sizeof(alight));
+	}
 	// return number of people in elevator
 	int getNumberOfPeople() {
 		int num = 0;
@@ -255,7 +262,9 @@ public:
 	double getWaitCost(int num_out[N + 1][N + 1]);
 
 	string toString();
-
+	
+	void update(string s);
+	 
 	static void printDistances(int* distance) {
 		cout << "Distances: " << endl;
 		for (int i = 1; i <= N; ++i) {
@@ -272,5 +281,5 @@ public:
 		cout << endl;
 	}
 };
-
+void printS(State s);
 #endif //LIFT_AGENT_STATE_H
