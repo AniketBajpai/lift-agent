@@ -1,17 +1,30 @@
 #include "UCTTree.h"
 
 UCTTree::UCTTree(State *startState) {
-	this->rootNode = new UCTNode(startState);
+	this->startState = startState;
+	this->rootNode = new UCTNode();
 	this->rootNode->parent = nullptr;
 }
 
 // select node according to tree policy
-UCTNode *UCTTree::select() {
+vector<Action>& UCTTree::getActionSequence() {
+	vector<Action> actions;
 	UCTNode *chosenNode = this->rootNode;
 	while (chosenNode->children.size() > 0) {
-		chosenNode = chosenNode->chooseNext().second;
+		auto next = chosenNode->chooseNext();
+		Action action = next.first;
+		action.push_back(action);
+		chosenNode = next.second;
 	}
-	return chosenNode;
+	return actions;
+}
+
+UCTNode* UCTTree::getTreeNode(vector<Action>& actions) {
+	UCTNode* currNode = this->rootNode;
+	for(auto action: actions) {
+		currNode = currNode->getChildNode(action);
+	}
+	return currNode;
 }
 
 // expand chosen node
@@ -34,11 +47,7 @@ UCTNode *UCTTree::expand(UCTNode *node) {
 //	}
 
 	// random expansion
-	auto &&random = node->state->getRandomNextState();
-	newAction = random.first;
-	newState = random.second;
-
-	UCTNode *newNode = new UCTNode(newState);
+	UCTNode *newNode = new UCTNode();
 	newNode->parent = node;
 	node->children.push_back(make_pair(newAction, newNode));
 	return newNode;
@@ -49,7 +58,7 @@ void UCTTree::simulate(UCTNode *node) {
 	State *currentState = node->state;
 	double simValue;
 	for (int i = 0; i < NUM_SIM; ++i) {
-		double simValueCurr = currentState->runSimulation(SIM_STATE_EPOCHS);
+		double simValueCurr = runSimulation(currentState,  ,SIM_STATE_EPOCHS);
 		simValue += simValueCurr;
 	}
 	simValue = simValue / NUM_SIM;
@@ -65,9 +74,36 @@ void UCTTree::simulate(UCTNode *node) {
 
 void UCTTree::run() {
 	for (int i = 0; i < TREE_ITER; ++i) {
-		UCTNode *selectedNode = this->select();
+		vector<Action> actions = this->select();
 		UCTNode *newNode = this->expand(selectedNode);
 		this->simulate(newNode);
 	}
+}
+
+double UCTTree::runSimulation(State* startState, vector<Action>& actions, int epochs) {
+	double cost = 0;
+	int num_out[N + 1][N + 1];  // number of people going from floor1 to floor2
+	memset(num_out, 0, sizeof(num_out));
+
+	for(auto action: actions) {
+		startState->simulateStep(num_out);
+		cost += startState->applyAction(action, num_out);   // Initial action cost
+		cost += startState->getWaitCost(num_out);
+	}
+
+	ElevatorState  prevState, currState;
+	while (epochs > 0) {
+		prevState = startState->elevator1.elevatorState;
+		Action chosenAction = startState->getPolicyAction();
+		startState->simulateStep(num_out);  // simulator step
+		currState = startState->elevator1.elevatorState;
+		cost += startState->applyAction(chosenAction, num_out);  // change lift state according to action, add action cost
+		cost += startState->getWaitCost(num_out);  // Add wait cost
+		bool isNewEpoch = (prevState == FULL and currState == EMPTY);
+		if(isNewEpoch)
+			epochs--;
+	}
+
+	return cost;
 }
 

@@ -7,11 +7,13 @@ class UCTNode {
 public:
 	UCTNode *parent;
 	vector<pair<Action, UCTNode *> > children;
-	State *state;
+//	State *state;
 	int num_simulations;
 	double value;
 
 	UCTNode(State *state);
+
+	UCTNode* getChildNode(Action action);
 
 	double getTreeValue();
 

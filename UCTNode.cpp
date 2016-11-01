@@ -1,9 +1,16 @@
 #include <cmath>
 #include "UCTNode.h"
 
-UCTNode::UCTNode(State *state) {
+UCTNode::UCTNode() {
 	this->num_simulations = 0;
-	vector<UCTNode> children;  // empty vector
+	this->value = 0;
+}
+
+UCTNode* UCTNode::getChildNode(Action action) {
+	for(auto child: this->children) {
+		if(child.first == action)
+			return child.second;
+	}
 }
 
 void UCTNode::updateValue(double value) {
@@ -11,16 +18,17 @@ void UCTNode::updateValue(double value) {
 		this->value = value;
 	}
 	else {
+		num_simulations++;
 		this->value += (value / num_simulations);
 	}
-	num_simulations++;
 }
 
 double UCTNode::getTreeValue() {
+	assert(this->parent != nullptr);
 	return (value + C_policy * sqrt(log(num_simulations) / parent->num_simulations));
 }
 
-std::pair<Action, UCTNode *> UCTNode::chooseNext() {
+pair<Action, UCTNode *> UCTNode::chooseNext() {
 	pair<Action, UCTNode *> chosen;
 	double maxValue = INT_MIN;
 
