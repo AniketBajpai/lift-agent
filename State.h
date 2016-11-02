@@ -31,6 +31,7 @@ public:
 		memset(alight, 0, sizeof(alight));
 		elevatorState = FULL;
 		is_up = true;//(bool) (rand() % 2);
+
 		for (int i = 1; i < N + 1; i++)
 			btnPressed[i] = false;//, sizeof(btnPressed));
 	}
@@ -88,11 +89,15 @@ public:
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
 			if (is_up and position < N) {
-				actions.push_back(AU);
+				if(!btnPressed[position]) {
+					actions.push_back(AU);
+				}
 				actions.push_back(AOU);
 			}
 			else if (!is_up and position > 1) {
-				actions.push_back(AD);
+				if(!btnPressed[position]) {
+					actions.push_back(AD);
+				}
 				actions.push_back(AOD);
 			}
 		}
