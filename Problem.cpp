@@ -241,6 +241,7 @@ void precompute(double p, double q, double r) {
   	decodes[AD]="AD";
   	decodes[AOU]="AOU";
   	decodes[AOD]="AOD";
+  	decodes[AS]="AS";
 }
 
 double getRemCost(Elevator elevator) {
@@ -500,7 +501,10 @@ int main() {
 	   	present.elevator2.resetAlight();
 	   findNextStates2(1,1,present,1);   //TODO take care of the state with probability 1
 	   Action nextAct= findAction() ;
-
+	   if(nextAct.first==AOU&&nextAct.second==AOU&&present.elevator1.position==present.elevator2.position)
+	   {
+	   	nextAct.second=AS ;
+	   }
 	   for(int i=0;i<nextStates.size();i++)
 	   {
 	   		//printS(nextStates[i].first);
