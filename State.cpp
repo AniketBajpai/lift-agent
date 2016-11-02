@@ -197,7 +197,7 @@ double State::getMinCost(int distance1[2 * N + 1], int distance2[2 * N + 1]) {
 }
 
 // get action according to policy
-Action State::getPolicyAction() {
+pair<Action, double> State::getPolicyAction() {
 	// Update state if full
 	if (elevator1.elevatorState == FULL)
 		elevator1.updateFullState();
@@ -252,8 +252,37 @@ Action State::getPolicyAction() {
 	if (elevator2.elevatorState != FULL)
 		elevator2.updateState(greedyAction.second, actionq2);
 
-	return greedyAction;
+	return make_pair(greedyAction, minCost);
 }
+
+vector<pair<Action, double> > State::getActionCosts() {
+	// Update state if full
+
+	// Hold all possible actions for elevators
+	vector<ElevatorAction> actions1;
+	vector<ElevatorAction> actions2;
+
+	// Get actions for elevators
+	actions1 = elevator1.getActions(actionq1);
+	actions2 = elevator2.getActions(actionq2);
+
+	vector<pair<Action, double> > costs;
+	for (auto action1: actions1) {
+		for (auto action2: actions2) {
+			int *distance1 = getDistanceArr(elevator1, action1);
+			int *distance2 = getDistanceArr(elevator2, action2);
+			// Greedy policy
+			double cost = getMinCost(distance1, distance2) +
+			              insideCost(elevator1, distance1) +
+			              insideCost(elevator2, distance2);
+			Action action = make_pair(action1, action2);
+			costs.push_back(make_pair(action, cost));
+		}
+	}
+
+	return costs;
+}
+
 
 void State::simulateStep(int num_out[N + 1][N + 1]) {
 	// simulate entry of people in system
@@ -301,6 +330,19 @@ double State::applyAction(Action action, int num_out[N + 1][N + 1]) {
 	double cost = 0;
 	cost += this->elevator1.applyAction(action.first, num_out);
 	cost += this->elevator1.applyAction(action.second, num_out);
+	if(action.first == AOU) {
+		time_up[elevator1.position] = 0;
+	}
+	else if(action.first == AOD) {
+		time_down[elevator1.position] = 0;
+	}
+	if(action.second == AOU) {
+		time_up[elevator2.position] = 0;
+	}
+	else if(action.second == AOD) {
+		time_down[elevator2.position] = 0;
+	}
+
 	return cost;
 }
 
@@ -348,7 +390,7 @@ double runSimulation(State *startState, Action action, int epochs) {
 	ElevatorState prevState, currState;
 	while (epochs > 0) {
 		prevState = startState->elevator1.elevatorState;
-		Action chosenAction = startState->getPolicyAction();
+		Action chosenAction = startState->getPolicyAction().first;
 		startState->simulateStep(num_out);  // simulator step
 		currState = startState->elevator1.elevatorState;
 		cost += startState->applyAction(chosenAction,
@@ -397,86 +439,74 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }*/
 //end of helper function for splitting 
-void State::update(string s)
-{
+void State::update(string s) {
 	vector<string> input; //= split("s", ' ');	
-	
+
 	istringstream iss(s);
-    copy(istream_iterator<string>(iss),
-         istream_iterator<string>(),
-         back_inserter(input));
+	copy(istream_iterator<string>(iss),
+	     istream_iterator<string>(),
+	     back_inserter(input));
 
 	//cout<<input[0]<<endl;
 	//cout<<input.size(); 
-	if(input[0]=="0"&&input.size()==1)
-		return ;
-	for(int i=0;i<input.size();i++)
-	{
-		char a=input[i][1];
-		char b=input[i][3];
-		int f= b-48;  
+	if (input[0] == "0" && input.size() == 1)
+		return;
+	for (int i = 0; i < input.size(); i++) {
+		char a = input[i][1];
+		char b = input[i][3];
+		int f = b - 48;
 		//cout<<a<<b;
-		if(a=='U')
-		{
-			time_up[f]++; 
-		} 
-		else if(a=='D')
-		{
-			time_down[f]++; 
+		if (a == 'U') {
+			time_up[f]++;
 		}
-		else
-		{
-			if(input[i][4]=='1')
-			{	//cout<<"yo"; 
-				elevator1.btnPressed[input[i][2]-48]= true;    //TODO: make button pressed false when liy opens at a floor  
+		else if (a == 'D') {
+			time_down[f]++;
+		}
+		else {
+			if (input[i][4] == '1') {    //cout<<"yo";
+				elevator1.btnPressed[input[i][2] -
+				                     48] = true;    //TODO: make button pressed false when liy opens at a floor
 			}
-			else if(input[i][4]=='2')
-			{	//cout<<"yo2";
-				elevator2.btnPressed[input[i][2]-48]= true;
+			else if (input[i][4] == '2') {    //cout<<"yo2";
+				elevator2.btnPressed[input[i][2] - 48] = true;
 			}
 		}
 
-	} 
-} 
+	}
+}
 
-void printS(State s)
-{	cout<<"TIME UP:";
-	for(int i=1;i<N+1;i++)
-	{
-		cout<<s.time_up[i]<<" ";
-	} 
-	cout<<endl; 
-	cout<<"TIME DOWN:";
-	for(int i=1;i<N+1;i++)
-	{
-		cout<<s.time_down[i]<<" ";
-	} 
-	cout<<endl; 
+void printS(State s) {
+	cout << "TIME UP:";
+	for (int i = 1; i < N + 1; i++) {
+		cout << s.time_up[i] << " ";
+	}
+	cout << endl;
+	cout << "TIME DOWN:";
+	for (int i = 1; i < N + 1; i++) {
+		cout << s.time_down[i] << " ";
+	}
+	cout << endl;
 
-	cout<<"ALIGHT elevator1"<<endl; 
-	for(int i=1;i<N+1;i++)
-	{
-		cout<<s.elevator1.alight[i]<<" ";
-	} 
-	cout<<endl; 
+	cout << "ALIGHT elevator1" << endl;
+	for (int i = 1; i < N + 1; i++) {
+		cout << s.elevator1.alight[i] << " ";
+	}
+	cout << endl;
 
-	cout<<"BTN pressed elevator1"<<endl; 
-	for(int i=1;i<N+1;i++)
-	{
-		cout<<s.elevator1.btnPressed[i]<<" ";
-	} 
-	cout<<endl;
+	cout << "BTN pressed elevator1" << endl;
+	for (int i = 1; i < N + 1; i++) {
+		cout << s.elevator1.btnPressed[i] << " ";
+	}
+	cout << endl;
 
-	cout<<"ALIGHT elevator2"<<endl; 
-	for(int i=1;i<N+1;i++)
-	{
-		cout<<s.elevator2.alight[i]<<" ";
-	} 
-	cout<<endl;
-	cout<<"BTN pressed elevator2"<<endl; 
-	for(int i=1;i<N+1;i++)
-	{
-		cout<<s.elevator2.btnPressed[i]<<" ";
-	} 
-	cout<<endl;
+	cout << "ALIGHT elevator2" << endl;
+	for (int i = 1; i < N + 1; i++) {
+		cout << s.elevator2.alight[i] << " ";
+	}
+	cout << endl;
+	cout << "BTN pressed elevator2" << endl;
+	for (int i = 1; i < N + 1; i++) {
+		cout << s.elevator2.btnPressed[i] << " ";
+	}
+	cout << endl;
 } 

@@ -24,15 +24,15 @@ public:
 	ElevatorState elevatorState;
 	bool is_up;
 
-	bool btnPressed[N+1] ; 
+	bool btnPressed[N + 1];
 
 	Elevator() {
 		this->position = 1;//rand() % (N - 1) + 1;
 		memset(alight, 0, sizeof(alight));
 		elevatorState = EMPTY;
 		is_up = (bool) (rand() % 2);
-		for(int i=1;i<N+1;i++)
-		btnPressed[i]= false;//, sizeof(btnPressed));
+		for (int i = 1; i < N + 1; i++)
+			btnPressed[i] = false;//, sizeof(btnPressed));
 	}
 
 	// check if elevator is empty
@@ -56,10 +56,11 @@ public:
 			return (num_alight == 0);
 		}
 	}
-	void resetAlight()
-	{
+
+	void resetAlight() {
 		memset(alight, 0, sizeof(alight));
 	}
+
 	// return number of people in elevator
 	int getNumberOfPeople() {
 		int num = 0;
@@ -83,7 +84,7 @@ public:
 		return actions;
 	}
 
-	vector<ElevatorAction> getActions(queue <ElevatorAction> &q) {
+	vector<ElevatorAction> getActions(queue<ElevatorAction> &q) {
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
 			if (is_up and position < N) {
@@ -121,7 +122,7 @@ public:
 		return actions;
 	}
 
-	void updateState(ElevatorAction elevatorAction, queue <ElevatorAction> &q) {
+	void updateState(ElevatorAction elevatorAction, queue<ElevatorAction> &q) {
 		if (elevatorState == EMPTY) {
 			updateEmptyState(elevatorAction, q);
 		}
@@ -130,7 +131,7 @@ public:
 		}
 	}
 
-	void updateEmptyState(ElevatorAction elevatorAction, queue <ElevatorAction> &q) {
+	void updateEmptyState(ElevatorAction elevatorAction, queue<ElevatorAction> &q) {
 		assert(elevatorState == EMPTY);
 		if (elevatorAction == AU or elevatorAction == AOU) {
 			this->elevatorState = FULL;
@@ -170,7 +171,7 @@ public:
 		}
 	}
 
-	void updateJustFullState(ElevatorAction elevatorAction, queue <ElevatorAction> &q) {
+	void updateJustFullState(ElevatorAction elevatorAction, queue<ElevatorAction> &q) {
 		assert(elevatorState == JUST_FULL);
 		if (q.empty()) {
 			this->elevatorState = FULL;
@@ -252,8 +253,8 @@ public:
 	Elevator elevator2;
 	int time_up[N + 1];
 	int time_down[N + 1];
-	queue <ElevatorAction> actionq1;
-	queue <ElevatorAction> actionq2;
+	queue<ElevatorAction> actionq1;
+	queue<ElevatorAction> actionq2;
 
 	State();
 
@@ -267,7 +268,9 @@ public:
 
 	double getMinCost(int distance1[2 * N + 2], int distance2[2 * N + 2]);
 
-	Action getPolicyAction();
+	pair<Action, double> getPolicyAction();
+
+	vector<pair<Action, double> > getActionCosts();
 
 	void simulateStep(int num_out[N + 1][N + 1]);
 
@@ -278,9 +281,9 @@ public:
 	vector<Action> getSimpleActions();
 
 	string toString();
-	
+
 	void update(string s);
-	 
+
 	static void printDistances(int *distance) {
 		cout << "Distances: " << endl;
 		for (int i = 1; i <= N; ++i) {
@@ -298,5 +301,7 @@ public:
 	}
 
 };
+
 void printS(State s);
+
 #endif //LIFT_AGENT_STATE_H
