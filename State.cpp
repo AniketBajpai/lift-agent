@@ -198,19 +198,31 @@ double State::getMinCost(int distance1[2 * N + 1], int distance2[2 * N + 1]) {
 
 // get action according to policy
 pair<Action, double> State::getPolicyAction() {
-	// Update state if full
-	if (elevator1.elevatorState == FULL)
-		elevator1.updateFullState();
-	if (elevator2.elevatorState == FULL)
-		elevator2.updateFullState();
+//	// Update state if full
+//	if (elevator1.elevatorState == FULL)
+//		elevator1.updateFullState();
+//	if (elevator2.elevatorState == FULL)
+//		elevator2.updateFullState();
 
 	// Hold all possible actions for elevators
 	vector<ElevatorAction> actions1;
 	vector<ElevatorAction> actions2;
 
 	// Get actions for elevators
-	actions1 = elevator1.getActions(actionq1);
-	actions2 = elevator2.getActions(actionq2);
+	if(elevator1.btnPressed[elevator1.position]) {
+		ElevatorAction elAction = elevator1.is_up? AOU : AOD;
+		actions1.push_back(elAction);
+	}
+	else {
+		actions1 = elevator1.getActions(actionq1);
+	}
+	if(elevator2.btnPressed[elevator2.position]) {
+		ElevatorAction elAction = elevator2.is_up? AOU : AOD;
+		actions2.push_back(elAction);
+	}
+	else {
+		actions2 = elevator2.getActions(actionq2);
+	}
 
 	double minCost = INT_MAX;
 	Action greedyAction;
@@ -245,12 +257,12 @@ pair<Action, double> State::getPolicyAction() {
 		}
 	}
 
-	// Update elevator states on basis of greedy action found
-	// This step is not done in simulator as simulator is out of our control in real problem
-	if (elevator1.elevatorState != FULL)
-		elevator1.updateState(greedyAction.first, actionq1);
-	if (elevator2.elevatorState != FULL)
-		elevator2.updateState(greedyAction.second, actionq2);
+//	// Update elevator states on basis of greedy action found
+//	// This step is not done in simulator as simulator is out of our control in real problem
+//	if (elevator1.elevatorState != FULL)
+//		elevator1.updateState(greedyAction.first, actionq1);
+//	if (elevator2.elevatorState != FULL)
+//		elevator2.updateState(greedyAction.second, actionq2);
 
 	return make_pair(greedyAction, minCost);
 }
@@ -271,6 +283,8 @@ vector<pair<Action, double> > State::getActionCosts() {
 		for (auto action2: actions2) {
 			int *distance1 = getDistanceArr(elevator1, action1);
 			int *distance2 = getDistanceArr(elevator2, action2);
+//			cout << action1 << " " << action2 << endl;
+//			printDistances(getMinDistanceArr(distance1, distance2));
 			// Greedy policy
 			double cost = getMinCost(distance1, distance2) +
 			              insideCost(elevator1, distance1) +
