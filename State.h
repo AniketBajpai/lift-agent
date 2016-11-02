@@ -27,7 +27,7 @@ public:
 	bool btnPressed[N + 1];
 
 	Elevator() {
-		this->position = rand() % (N - 1) + 1;
+		this->position = 1;//rand() % (N - 1) + 1;
 		memset(alight, 0, sizeof(alight));
 		elevatorState = EMPTY;
 		is_up = (bool) (rand() % 2);

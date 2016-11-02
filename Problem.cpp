@@ -232,7 +232,8 @@ void precompute(double p, double q, double r) {
 	precompute_n_exp(p, q, r);
 	precompute_n_exp_up_down();
 	precompute_distance();
-	for (int i = 1; i < N + 1; i++) {
+
+	for (int i = 0; i < N + 1; i++) {
 		set<pair<int, pair<int, int>  >> temp;
 		lift1Stopped.push_back(temp);
 		lift2Stopped.push_back(temp);
@@ -241,6 +242,7 @@ void precompute(double p, double q, double r) {
 	decodes[AD] = "AD";
 	decodes[AOU] = "AOU";
 	decodes[AOD] = "AOD";
+	decodes[AS] = "AS";
 }
 
 double getRemCost(Elevator elevator) {
@@ -297,7 +299,10 @@ void findNextStates2(int floor1, int floor2, State s, double prob) {
 				set<pair<int, pair<int, int>>>::iterator it;
 				for (it = lift2Stopped[floor2].begin(); it != lift2Stopped[floor2].end() &&
 				                                        lift2Stopped[floor2].size(); ++it) {//cout << ' ' << it->first<<it->second;
+					//cout<<"yo"<<endl;
 					p = p + P[i][it->first][floor2][it->second.first][it->second.second];
+					cout << "i=" << i << "it->first=" << it->first << "yo1::" << p << "fir" << it->second.first <<
+					"sec" << it->second.second << endl;
 				}
 				findNextStates2(floor1, floor2 + 1, temp, prob * p);
 			}
@@ -315,8 +320,10 @@ void findNextStates2(int floor1, int floor2, State s, double prob) {
 			set<pair<int, pair<int, int>>>::iterator it;
 			for (it = lift1Stopped[floor1].begin(); it != lift1Stopped[floor1].end() &&
 			                                        lift1Stopped[floor1].size(); ++it) {//cout << ' ' << it->first<<it->second;
-				cout << "yo" << endl;
-				p = p + P[i][it->first][floor2][it->second.first][it->second.second];
+
+				p = p + P[i][it->first][floor1][it->second.first][it->second.second];
+				cout << "i=" << i << "it->first=" << it->first << "yo1::" << p << "fir" << it->second.first << "sec" <<
+				it->second.second << endl;
 			}
 			findNextStates2(floor1 + 1, floor2, temp, prob * p);
 		}
@@ -346,26 +353,34 @@ void changes(State &s, ElevatorAction s1, ElevatorAction s2) {
 	}
 	switch (s1) {
 		case AU :
+			assert(s.elevator1.position < N);
+			s.elevator1.position++;
 			break;
 		case AOU :
 			lift1Stopped[s.elevator1.position].clear();
+			//cout<<"elevPos"<<s.elevator1.position;
 			for (int i = s.elevator1.position + 1; i < N + 1; i++) {
 				int a = s.time_up[s.elevator1.position];
 				int b = s.time_down[s.elevator1.position];
+				//cout<<"a:"<<a<<"b:"<<b<<endl;
 				pair<int, int> temp = pair<int, int>(a, b);
 				lift1Stopped[i].insert(pair<int, pair<int, int> >(s.elevator1.position, temp));
-
+				//cout<<i<<endl;
 			}
+			//cout<<"yo";
 			s.time_up[s.elevator1.position] = 0;
 			s.elevator1.btnPressed[s.elevator1.position] = false;
 			break;
 		case AD :
+			assert(s.elevator1.position > 1);
+			s.elevator1.position--;
 			break;
 		case AOD :
 			lift1Stopped[s.elevator1.position].clear();
 			for (int i = s.elevator1.position - 1; i > 0; i--) {
 				int a = s.time_up[s.elevator1.position];
 				int b = s.time_down[s.elevator1.position];
+				cout << "a:" << a << endl;
 				pair<int, int> temp = pair<int, int>(a, b);
 				lift1Stopped[i].insert(pair<int, pair<int, int> >(s.elevator1.position, temp));
 
@@ -379,20 +394,26 @@ void changes(State &s, ElevatorAction s1, ElevatorAction s2) {
 	}
 	switch (s2) {
 		case AU :
+			assert(s.elevator2.position < N);
+			s.elevator2.position++;
+			break;
 			break;
 		case AOU :
 			lift2Stopped[s.elevator2.position].clear();
 			for (int i = s.elevator2.position + 1; i < N + 1; i++) {
 				int a = s.time_up[s.elevator2.position];
 				int b = s.time_down[s.elevator2.position];
+				cout << "a:" << a << endl;
 				pair<int, int> temp = pair<int, int>(a, b);
 				lift2Stopped[i].insert(pair<int, pair<int, int> >(s.elevator2.position, temp));
 
 			}
-			s.time_up[s.elevator2.position] = 0;
+			s.time_up[s.elevator2.position] = 0;  //error here
 			s.elevator2.btnPressed[s.elevator2.position] = false;
 			break;
 		case AD :
+			assert(s.elevator2.position > 1);
+			s.elevator2.position--;
 			break;
 		case AOD :
 			lift2Stopped[s.elevator2.position].clear();
@@ -416,21 +437,34 @@ Action findAction() {
 	double expectiCost[25];   // 0 : AU   1:AD 
 	memset(expectiCost, 0, sizeof(expectiCost));
 	vector<pair<Action, double> > v;
+	//cerr<<nextStates.size();
 	for (int i = 0; i < nextStates.size(); i++) {
 		State *s123 = &nextStates[i].first;
 		//printS(s123) ;
-		v = UCTGraph::getBaseCosts(s123, 1);   //dummyCost();//call fxn nextStates[i].second* //
+//		v = UCTGraph::getBaseCosts(s123, 1);   //dummyCost();//call fxn nextStates[i].second* //
+		v = s123->getActionCosts();
+		// State::printActions(v.first);
+		// State::printDistances(v.second);
 		for (int j = 0; j < v.size(); j++) {
 			expectiCost[j] = expectiCost[j] + nextStates[i].second * v[j].second;
 		}
 	}
-	double temp = LONG_MIN;
+	double temp = LONG_MAX;  //Make it max and select
 	int act;
+
 	for (int i = 0; i < v.size(); i++) {
-		if (expectiCost[i] > temp) {
+		cout << expectiCost[i] << " " << endl;
+	}
+
+	for (int i = 0; i < v.size(); i++) {
+		if (expectiCost[i] < temp) {
 			act = i;
+			temp = expectiCost[i];
 		}
 	}
+	//cout<<"action:"<<act<<decodes[v[act].first.first]<<endl;
+	//cout<<"yo"<<endl; 
+	//printS()
 	return v[act].first;
 }
 
@@ -450,7 +484,7 @@ int main() {
 	//state->time_up[4] = 3;
 	cout << "0" << endl;
 	cout << flush;
-	cerr << "started1";
+	//cerr<<"started1";
 	State present;
 	// read from simulator
 	// update alight
@@ -465,11 +499,19 @@ int main() {
 		present.elevator2.resetAlight();
 		findNextStates2(1, 1, present, 1);   //TODO take care of the state with probability 1
 		Action nextAct = findAction();
+		if (nextAct.first == AOU && nextAct.second == AOU && present.elevator1.position == present.elevator2.position) {
+			nextAct.second = AS;
+		}
+		for (int i = 0; i < nextStates.size(); i++) {
+			//printS(nextStates[i].first);
+			//if()
+			//cout<<endl<<"prob: "<<nextStates[i].second<<endl;
+		}
 
 		changes(present, nextAct.first, nextAct.second);
 
 		cout << decodes[nextAct.first] << "1 " << decodes[nextAct.second] << "2 " << endl;
-		//cout<<nextStates.size();   		
+		//cout<<nextStates.size();
 		///printS(nextStates[5].first);
 		//cout<<"prob"<<nextStates[5].second<<endl;
 	}

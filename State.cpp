@@ -7,6 +7,7 @@ State::State() {
 	elevator1 = Elevator();
 	elevator2 = Elevator();
 	memset(time_up, 0, sizeof(time_up));
+	memset(time_up, 0, sizeof(time_up));
 	memset(time_down, 0, sizeof(time_down));
 	actionq1 = queue<ElevatorAction>();
 	actionq2 = queue<ElevatorAction>();
@@ -329,6 +330,19 @@ double State::applyAction(Action action, int num_out[N + 1][N + 1]) {
 	double cost = 0;
 	cost += this->elevator1.applyAction(action.first, num_out);
 	cost += this->elevator1.applyAction(action.second, num_out);
+	if(action.first == AOU) {
+		time_up[elevator1.position] = 0;
+	}
+	else if(action.first == AOD) {
+		time_down[elevator1.position] = 0;
+	}
+	if(action.second == AOU) {
+		time_up[elevator2.position] = 0;
+	}
+	else if(action.second == AOD) {
+		time_down[elevator2.position] = 0;
+	}
+
 	return cost;
 }
 
@@ -376,7 +390,7 @@ double runSimulation(State *startState, Action action, int epochs) {
 	ElevatorState prevState, currState;
 	while (epochs > 0) {
 		prevState = startState->elevator1.elevatorState;
-		Action chosenAction = startState->getPolicyAction();
+		Action chosenAction = startState->getPolicyAction().first;
 		startState->simulateStep(num_out);  // simulator step
 		currState = startState->elevator1.elevatorState;
 		cost += startState->applyAction(chosenAction,
