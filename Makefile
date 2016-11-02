@@ -14,6 +14,7 @@ all: $(TARGET)
 
 $(TARGET): $(CPPFILES)
 	$(CC) $(CFLAGS) -o $(TARGET) $(CPPFILES)
+	cp agent ../lift-sim/
 
 run: $(TARGET)
 	./$(TARGET)

@@ -29,8 +29,8 @@ public:
 	Elevator() {
 		this->position = 1;//rand() % (N - 1) + 1;
 		memset(alight, 0, sizeof(alight));
-		elevatorState = EMPTY;
-		is_up = (bool) (rand() % 2);
+		elevatorState = FULL;
+		is_up = true;//(bool) (rand() % 2);
 		for (int i = 1; i < N + 1; i++)
 			btnPressed[i] = false;//, sizeof(btnPressed));
 	}

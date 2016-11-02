@@ -198,11 +198,11 @@ double State::getMinCost(int distance1[2 * N + 1], int distance2[2 * N + 1]) {
 
 // get action according to policy
 pair<Action, double> State::getPolicyAction() {
-	// Update state if full
-	if (elevator1.elevatorState == FULL)
-		elevator1.updateFullState();
-	if (elevator2.elevatorState == FULL)
-		elevator2.updateFullState();
+	// // Update state if full
+	// if (elevator1.elevatorState == FULL)
+	// 	elevator1.updateFullState();
+	// if (elevator2.elevatorState == FULL)
+	// 	elevator2.updateFullState();
 
 	// Hold all possible actions for elevators
 	vector<ElevatorAction> actions1;
@@ -245,12 +245,12 @@ pair<Action, double> State::getPolicyAction() {
 		}
 	}
 
-	// Update elevator states on basis of greedy action found
-	// This step is not done in simulator as simulator is out of our control in real problem
-	if (elevator1.elevatorState != FULL)
-		elevator1.updateState(greedyAction.first, actionq1);
-	if (elevator2.elevatorState != FULL)
-		elevator2.updateState(greedyAction.second, actionq2);
+	// // Update elevator states on basis of greedy action found
+	// // This step is not done in simulator as simulator is out of our control in real problem
+	// if (elevator1.elevatorState != FULL)
+	// 	elevator1.updateState(greedyAction.first, actionq1);
+	// if (elevator2.elevatorState != FULL)
+	// 	elevator2.updateState(greedyAction.second, actionq2);
 
 	return make_pair(greedyAction, minCost);
 }
@@ -464,11 +464,12 @@ void State::update(string s) {
 		}
 		else {
 			if (input[i][4] == '1') {    //cout<<"yo";
-				elevator1.btnPressed[input[i][2] -
-				                     48] = true;    //TODO: make button pressed false when liy opens at a floor
+				elevator1.btnPressed[input[i][2] -48] = true;    //TODO: make button pressed false when liy opens at a floor
+				elevator1.alight[input[i][2] -48] = 5;
 			}
 			else if (input[i][4] == '2') {    //cout<<"yo2";
 				elevator2.btnPressed[input[i][2] - 48] = true;
+				elevator2.alight[input[i][2] -48] = 5;
 			}
 		}
 
@@ -476,37 +477,38 @@ void State::update(string s) {
 }
 
 void printS(State s) {
-	cout << "TIME UP:";
+	cerr<<"elev1: "<<s.elevator1.position<<" elev2: "<<s.elevator2.position<<endl;
+	cerr << "TIME UP:";
 	for (int i = 1; i < N + 1; i++) {
-		cout << s.time_up[i] << " ";
+		cerr << s.time_up[i] << " ";
 	}
-	cout << endl;
-	cout << "TIME DOWN:";
+	cerr << endl;
+	cerr << "TIME DOWN:";
 	for (int i = 1; i < N + 1; i++) {
-		cout << s.time_down[i] << " ";
+		cerr << s.time_down[i] << " ";
 	}
-	cout << endl;
+	cerr << endl;
 
-	cout << "ALIGHT elevator1" << endl;
+	cerr << "ALIGHT elevator1" << endl;
 	for (int i = 1; i < N + 1; i++) {
-		cout << s.elevator1.alight[i] << " ";
+		cerr << s.elevator1.alight[i] << " ";
 	}
-	cout << endl;
+	cerr << endl;
 
-	cout << "BTN pressed elevator1" << endl;
+	cerr << "BTN pressed elevator1" << endl;
 	for (int i = 1; i < N + 1; i++) {
-		cout << s.elevator1.btnPressed[i] << " ";
+		cerr << s.elevator1.btnPressed[i] << " ";
 	}
-	cout << endl;
+	cerr << endl;
 
-	cout << "ALIGHT elevator2" << endl;
+	cerr << "ALIGHT elevator2" << endl;
 	for (int i = 1; i < N + 1; i++) {
-		cout << s.elevator2.alight[i] << " ";
+		cerr << s.elevator2.alight[i] << " ";
 	}
-	cout << endl;
-	cout << "BTN pressed elevator2" << endl;
+	cerr << endl;
+	cerr << "BTN pressed elevator2" << endl;
 	for (int i = 1; i < N + 1; i++) {
-		cout << s.elevator2.btnPressed[i] << " ";
+		cerr << s.elevator2.btnPressed[i] << " ";
 	}
-	cout << endl;
+	cerr << endl;
 } 
