@@ -456,11 +456,11 @@ void State::update(string s) {
 		else {
 			if (input[i][4] == '1') {    //cout<<"yo";
 				elevator1.btnPressed[input[i][2] -48] = true;    //TODO: make button pressed false when liy opens at a floor
-				elevator1.alight[input[i][2] -48] = 5;
+				elevator1.alight[input[i][2] -48] = 3;
 			}
 			else if (input[i][4] == '2') {    //cout<<"yo2";
 				elevator2.btnPressed[input[i][2] - 48] = true;
-				elevator2.alight[input[i][2] -48] = 5;
+				elevator2.alight[input[i][2] -48] = 3;
 			}
 		}
 
