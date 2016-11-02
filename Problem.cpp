@@ -355,8 +355,8 @@ void changes(State &s, ElevatorAction s1, ElevatorAction s2) {
 		case AU :
 			assert(s.elevator1.position < N);
 			s.elevator1.position++;
-			if(s.elevator1.position==5)
-				s.elevator1.is_up=false;
+			if (s.elevator1.position == 5)
+				s.elevator1.is_up = false;
 			break;
 		case AOU :
 			/*lift1Stopped[s.elevator1.position].clear();
@@ -377,8 +377,8 @@ void changes(State &s, ElevatorAction s1, ElevatorAction s2) {
 		case AD :
 			assert(s.elevator1.position > 1);
 			s.elevator1.position--;
-			if(s.elevator1.position==1)
-				s.elevator1.is_up=true;
+			if (s.elevator1.position == 1)
+				s.elevator1.is_up = true;
 			break;
 		case AOD :
 			/*lift1Stopped[s.elevator1.position].clear();
@@ -402,8 +402,8 @@ void changes(State &s, ElevatorAction s1, ElevatorAction s2) {
 		case AU :
 			assert(s.elevator2.position < N);
 			s.elevator2.position++;
-			if(s.elevator2.position==5)
-				s.elevator2.is_up=false; 
+			if (s.elevator2.position == 5)
+				s.elevator2.is_up = false;
 			break;
 			break;
 		case AOU :
@@ -423,8 +423,8 @@ void changes(State &s, ElevatorAction s1, ElevatorAction s2) {
 		case AD :
 			assert(s.elevator2.position > 1);
 			s.elevator2.position--;
-			if(s.elevator2.position==1)
-				s.elevator2.is_up=true;
+			if (s.elevator2.position == 1)
+				s.elevator2.is_up = true;
 			break;
 		case AOD :
 			//lift2Stopped[s.elevator2.position].clear();
@@ -480,31 +480,30 @@ Action findAction() {
 	return v[act].first;
 }
 
-int main() {
-	p = 0.8;
-	q = 0.5;
-	r = 0.5;
+int main(int argc, char *argv[]) {
+//	assert(argc == 7);
+//	p = 0.8;
+//	q = 0.5;
+//	r = 0.5;
+	p = atof(argv[3]);
+	q = atof(argv[4]);
+	r = atof(argv[5]);
+	double tu = atof(argv[6]);
+
 	precompute(p, q, r);
 	cerr << "started";
-//	 find integer values for actions
-//	cout << AU << endl;
-//	cout << AD << endl;
-//	cout << AOU << endl;
-//	cout << AOD << endl;
-//	cout << AS << endl;
-	//state->time_up[2] = 3;
-	//state->time_up[4] = 3;
+
 	cout << "0" << endl;
 	cout << flush;
 	//cerr<<"started1";
 	State present;
 	// read from simulator
 	// update alight
-	bool ret1 = false ;
-	bool ret2 = false ;
-	bool movup1 = false ;
-	bool movup2 = false ;
-	timeStamp=0;
+	bool ret1 = false;
+	bool ret2 = false;
+	bool movup1 = false;
+	bool movup2 = false;
+	timeStamp = 0;
 	while (true) {
 		timeStamp++;
 		string s;
@@ -517,13 +516,14 @@ int main() {
 		//findNextStates2(1, 1, present, 1);   //TODO take care of the state with probability 1
 		//Action nextAct = findAction();
 		//cout<<"yo1"<<endl;
-		cerr<<"Before selecting action ret1:"<<ret1<<" "<<"ret2:"<<ret2<<"movup1:"<<movup1<<"movup2:"<<movup2<<"isup1:"<<present.elevator1.is_up<<"isup2:"<<present.elevator2.is_up<<endl;
+		cerr << "Before selecting action ret1:" << ret1 << " " << "ret2:" << ret2 << "movup1:" << movup1 << "movup2:" <<
+		movup2 << "isup1:" << present.elevator1.is_up << "isup2:" << present.elevator2.is_up << endl;
 		printS(present);
-		Action nextAct=present.getPolicyAction().first; 
-		cerr<<"action from best policy: "<<decodes[nextAct.first]<<" "<<decodes[nextAct.second]<<endl;
+		Action nextAct = present.getPolicyAction().first;
+		cerr << "action from best policy: " << decodes[nextAct.first] << " " << decodes[nextAct.second] << endl;
 
 		//vector<pair<Action, double> > v = UCTGraph::getBaseCosts(&present, 10) ;
-		
+
 		/*double t1=LONG_MAX; 
 		for(int i=0;i<v.size();i++)
 		{
@@ -533,7 +533,7 @@ int main() {
 				t1= v[i].second; 
 			}
 		}*/
-		
+
 
 		/*if(present.elevator1.position!=N && ret1) {
 			ret1 = false;
@@ -575,10 +575,9 @@ int main() {
 			movup2 = true; 
 		}
 		*/
-		if(timeStamp==1)
-		{
-			nextAct.first=AOU;
-			nextAct.second=AOU;
+		if (timeStamp == 1) {
+			nextAct.first = AOU;
+			nextAct.second = AOU;
 		}
 		if (nextAct.first == AOU && nextAct.second == AOU && present.elevator1.position == present.elevator2.position) {
 			nextAct.second = AS;
@@ -591,38 +590,19 @@ int main() {
 
 		//cout<<"yo"<<endl;
 		cerr << decodes[nextAct.first] << "1 " << decodes[nextAct.second] << "2 " << endl;
-		cerr<<"elev2Pos:"<<present.elevator2.position<<" "<<"elev1Pos:"<<present.elevator1.position<<endl; 
-		cerr<<"ret1:"<<ret1<<" "<<"ret2:"<<ret2<<"movup1:"<<movup1<<"movup2:"<<movup2<<"isup1:"<<present.elevator1.is_up<<"isup2:"<<present.elevator2.is_up<<endl; 
+		cerr << "elev2Pos:" << present.elevator2.position << " " << "elev1Pos:" << present.elevator1.position << endl;
+		cerr << "ret1:" << ret1 << " " << "ret2:" << ret2 << "movup1:" << movup1 << "movup2:" << movup2 << "isup1:" <<
+		present.elevator1.is_up << "isup2:" << present.elevator2.is_up << endl;
 
 		changes(present, nextAct.first, nextAct.second);
 		cout << decodes[nextAct.first] << "1 " << decodes[nextAct.second] << "2 " << endl;
-		cout<<flush;
+		cout << flush;
 
-		
-		
+
+
 		//cout<<nextStates.size();
 		///printS(nextStates[5].first);
 		//cout<<"prob"<<nextStates[5].second<<endl;
 	}
-	//
-//	cout << state->toString() << endl;
-
-//	int* distance1 = state->getDistanceArr(state->elevator1, AU);
-//	int* distance2_down = state->getDistanceArr(state->elevator2, AD);
-//	int* distance2_open = state->getDistanceArr(state->elevator2, AOU);
-//	cout << "DOWN:" << endl;
-//	state->printDistances(state->getMinDistanceArr(distance1, distance2_down));
-//	cout << (state->getMinCost(distance1, distance2_down) /*+ state->insideCost(state->elevator1, distance1) + state->insideCost(state->elevator2, distance2_down)*/) << endl;
-//	cout << "OPEN UP:" << endl;
-//	state->printDistances(state->getMinDistanceArr(distance1, distance2_open));
-//	cout << (state->getMinCost(distance1, distance2_open) /*+ state->insideCost(state->elevator1, distance1) + state->insideCost(state->elevator2, distance2_open)(*/) << endl;
-//
-//	Action action = state->getPolicyAction();
-//	cout << "ACTIONS:" << endl;
-//	cout << action.first << " " << action.second << endl << endl;
-//
-//	cout << state->toString() << endl;
-
-	//double cost = state->runSimulation(1);
 
 }

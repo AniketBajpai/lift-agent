@@ -85,23 +85,23 @@ public:
 		return actions;
 	}
 
-	vector<ElevatorAction> getActions(queue<ElevatorAction> &q, int* time_up, int* time_down) {
+	vector<ElevatorAction> getActions(queue<ElevatorAction> &q, int *time_up, int *time_down) {
 		const int TIME_THRES = 1;
 		vector<ElevatorAction> actions;
 		if (this->elevatorState == FULL) {
 			if (is_up and position < N) {
-				if(!btnPressed[position] and time_up[position] < TIME_THRES) {
+				if (!btnPressed[position] and time_up[position] < TIME_THRES) {
 					actions.push_back(AU);
 				}
 				//else
-				{actions.push_back(AOU);}
+				{ actions.push_back(AOU); }
 			}
 			else if (!is_up and position > 1) {
-				if(!btnPressed[position] and time_down[position] < TIME_THRES) {
+				if (!btnPressed[position] and time_down[position] < TIME_THRES) {
 					actions.push_back(AD);
 				}
 				//else
-				{actions.push_back(AOD);}
+				{ actions.push_back(AOD); }
 			}
 		}
 		else if (this->elevatorState == EMPTY) {

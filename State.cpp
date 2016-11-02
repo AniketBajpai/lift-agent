@@ -321,16 +321,16 @@ double State::applyAction(Action action, int num_out[N + 1][N + 1]) {
 	double cost = 0;
 	cost += this->elevator1.applyAction(action.first, num_out);
 	cost += this->elevator1.applyAction(action.second, num_out);
-	if(action.first == AOU) {
+	if (action.first == AOU) {
 		time_up[elevator1.position] = 0;
 	}
-	else if(action.first == AOD) {
+	else if (action.first == AOD) {
 		time_down[elevator1.position] = 0;
 	}
-	if(action.second == AOU) {
+	if (action.second == AOU) {
 		time_up[elevator2.position] = 0;
 	}
-	else if(action.second == AOD) {
+	else if (action.second == AOD) {
 		time_down[elevator2.position] = 0;
 	}
 
@@ -455,12 +455,13 @@ void State::update(string s) {
 		}
 		else {
 			if (input[i][4] == '1') {    //cout<<"yo";
-				elevator1.btnPressed[input[i][2] -48] = true;    //TODO: make button pressed false when liy opens at a floor
-				elevator1.alight[input[i][2] -48] = 3;
+				elevator1.btnPressed[input[i][2] -
+				                     48] = true;    //TODO: make button pressed false when liy opens at a floor
+				elevator1.alight[input[i][2] - 48] = 3;
 			}
 			else if (input[i][4] == '2') {    //cout<<"yo2";
 				elevator2.btnPressed[input[i][2] - 48] = true;
-				elevator2.alight[input[i][2] -48] = 3;
+				elevator2.alight[input[i][2] - 48] = 3;
 			}
 		}
 
@@ -468,7 +469,7 @@ void State::update(string s) {
 }
 
 void printS(State s) {
-	cerr<<"elev1: "<<s.elevator1.position<<" elev2: "<<s.elevator2.position<<endl;
+	cerr << "elev1: " << s.elevator1.position << " elev2: " << s.elevator2.position << endl;
 	cerr << "TIME UP:";
 	for (int i = 1; i < N + 1; i++) {
 		cerr << s.time_up[i] << " ";
