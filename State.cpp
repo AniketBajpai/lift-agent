@@ -204,20 +204,8 @@ pair<Action, double> State::getPolicyAction() {
 	vector<ElevatorAction> actions2;
 
 	// Get actions for elevators
-	if(elevator1.btnPressed[elevator1.position]) {
-		ElevatorAction elAction = elevator1.is_up? AOU : AOD;
-		actions1.push_back(elAction);
-	}
-	else {
-		actions1 = elevator1.getActions(actionq1);
-	}
-	if(elevator2.btnPressed[elevator2.position]) {
-		ElevatorAction elAction = elevator2.is_up? AOU : AOD;
-		actions2.push_back(elAction);
-	}
-	else {
-		actions2 = elevator2.getActions(actionq2);
-	}
+	actions1 = elevator1.getActions(actionq1);
+	actions2 = elevator2.getActions(actionq2);
 
 	double minCost = INT_MAX;
 	Action greedyAction;
