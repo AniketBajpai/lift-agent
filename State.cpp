@@ -7,6 +7,7 @@ State::State() {
 	elevator1 = Elevator();
 	elevator2 = Elevator();
 	memset(time_up, 0, sizeof(time_up));
+	memset(time_up, 0, sizeof(time_up));
 	memset(time_down, 0, sizeof(time_down));
 	actionq1 = queue<ElevatorAction>();
 	actionq2 = queue<ElevatorAction>();
