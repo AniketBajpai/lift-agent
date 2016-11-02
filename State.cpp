@@ -263,8 +263,8 @@ vector<pair<Action, double> > State::getActionCosts() {
 	vector<ElevatorAction> actions2;
 
 	// Get actions for elevators
-	actions1 = elevator1.getActions(actionq1);
-	actions2 = elevator2.getActions(actionq2);
+	actions1 = elevator1.getActions(actionq1, time_up, time_down);
+	actions2 = elevator2.getActions(actionq2, time_up, time_down);
 
 	vector<pair<Action, double> > costs;
 	for (auto action1: actions1) {
