@@ -19,7 +19,7 @@ run: $(TARGET)
 	./$(TARGET)
 
 test: $(CPPFILES)
-	g++ -std=c++11 -o $(TESTTARGET) $(CPPFILES)
+	g++ -std=c++11 -fsanitize=address -o $(TESTTARGET) $(CPPFILES)
 	./$(TESTTARGET)
 
 

@@ -76,11 +76,12 @@ double UCTGraph::runSimulation(State *startState, Action action, int depth) {
 	cost += state->getWaitCost(num_out);
 
 	while (depth--) {
-		Action chosenAction = state->getPolicyAction();
+		Action chosenAction = state->getPolicyAction().first;
 		state->simulateStep(num_out);  // simulator step
 		cost += state->applyAction(chosenAction, num_out);  // change lift state according to action, add action cost
 		cost += state->getWaitCost(num_out);  // Add wait cost
 	}
+	cost += state->getPolicyAction().second;
 
 	return cost;
 }
